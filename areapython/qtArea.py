@@ -61,15 +61,12 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		
 	def calculateDefectChestRatio(self):
-		self.pixelCount('chest')
-		self.pixelCount('defect')
+		self.pixelCount('chest', "paint2dchest100.png")
+		self.pixelCount('defect', "outfile.png")
 		
 		
-	def pixelCount(self, areaType):
-		if(areaType == 'chest'):
-			image = misc.imread("paint2dchest100.png")
-		else:
-			image = misc.imread("outfile.png")
+	def pixelCount(self, areaType, filename):
+		image = misc.imread(filename)
 		X = image.shape[0]
 		Y = image.shape[1]
 		
