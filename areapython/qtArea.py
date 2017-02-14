@@ -17,8 +17,11 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.centerBoundaryRatio = .5
 		self.rightBoundaryRatio = .75
 
+		#display app title
+		self.appTitle = QtWidgets.QLabel('Welcome to the 2d application')
+
 		#display text in window
-		self.text = QtWidgets.QLabel('Please select the position of the line')
+		self.text = QtWidgets.QLabel('Please select an option')
 		
 		#center left lung vertical line button
 		self.leftButton = QtWidgets.QPushButton('Set defect left boundary')
@@ -39,13 +42,16 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		
 		#this is the layout setup horizontal boxes in a wrapping vertical layout
 		h_box_instruct = QtWidgets.QHBoxLayout()
-		h_box_instruct.addWidget(self.text)
+		h_box_instruct.addWidget(self.appTitle)
 		
 		h_box_buttons = QtWidgets.QHBoxLayout()
 		h_box_buttons.addWidget(self.leftButton)
 		h_box_buttons.addWidget(self.centerButton)
 		h_box_buttons.addWidget(self.rightButton)
 		h_box_buttons.addWidget(self.areaRatioButton)
+
+		h_box_status = QtWidgets.QHBoxLayout()
+		h_box_status.addWidget(self.text)
 		
 		h_box_picture = QtWidgets.QHBoxLayout()
 		h_box_picture.addWidget(self.picture)
@@ -53,6 +59,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		vertical_box = QtWidgets.QVBoxLayout()
 		vertical_box.addLayout(h_box_instruct)
 		vertical_box.addLayout(h_box_buttons)
+		vertical_box.addLayout(h_box_status)
 		vertical_box.addLayout(h_box_picture)
 		
 		self.setLayout(vertical_box)
@@ -61,8 +68,11 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		
 	def calculateDefectChestRatio(self):
-		self.pixelCount('chest', "paint2dchest100.png")
-		self.pixelCount('defect', "outfile.png")
+		chestPixels = self.pixelCount('chest', "paint2dchest100.png")
+		defectPixels = self.pixelCount('defect', "outfile.png")
+		ratio = float(defectPixels) / chestPixels
+		self.text.setText('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
+			+ ' pixels. The defect / chest ratio is: ' + str(ratio))
 		
 		
 	def pixelCount(self, areaType, filename):
@@ -145,6 +155,8 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		else:
 			misc.imsave('outfile2.png', image)
 			self.picture.setPixmap(QtGui.QPixmap('outfile2.png'))
+
+		return Area_Pixels
 		
 	
 app = QtWidgets.QApplication(sys.argv)
