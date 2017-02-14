@@ -8,7 +8,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 	def __init__(self):
 		super(AreaRatioWindow, self).__init__()			
 		self.setWindowTitle('2d window')
-		self.setGeometry(200, 200, 1000, 800)
+		#self.setGeometry(200, 200, 1000, 800)
 		self.init_window()
 		
 	def init_window(self):
