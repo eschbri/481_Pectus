@@ -26,6 +26,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#if boundary ratios have been changed
 		self.boundaryRatiosChanged = True
 
+		#if already ran defect/chest ratio
+		self.ran_defect_chest_ratio = False
+
 		#display app title
 		self.appTitle = QtWidgets.QLabel('Welcome to the 2d application')
 
@@ -91,7 +94,6 @@ class AreaRatioWindow(QtWidgets.QWidget):
 	def switchDefaultImage(self):
 		self.displayPictureFile = 'paint2dchest100.png'
 		self.boundaryLineOn = False
-		self.boundaryRatiosChanged = True
 		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
 	def displayBoundaryLine(self):
@@ -132,11 +134,16 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		
 	def calculateDefectChestRatio(self):
-		chestPixels = self.pixelCount('chest', "paint2dchest100.png")
-		defectPixels = self.pixelCount('defect', "outfile.png")
-		ratio = float(defectPixels) / chestPixels
-		self.text.setText('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
-			+ ' pixels. The defect / chest ratio is: ' + str(ratio))
+		if(self.ran_defect_chest_ratio):
+			self.displayPictureFile = 'outfile2.png'
+			self.boundaryLineOn = False
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+		else:
+			chestPixels = self.pixelCount('chest', "paint2dchest100.png")
+			defectPixels = self.pixelCount('defect', "outfile.png")
+			ratio = float(defectPixels) / chestPixels
+			self.text.setText('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
+				+ ' pixels. The defect / chest ratio is: ' + str(ratio))
 		
 		
 	def pixelCount(self, areaType, filename):
@@ -219,6 +226,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		else:
 			misc.imsave('outfile2.png', image)
 			self.displayPictureFile = 'outfile2.png'
+			self.ran_defect_chest_ratio = True
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
 		return Area_Pixels
