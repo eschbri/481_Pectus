@@ -17,6 +17,15 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.centerBoundaryRatio = .5
 		self.rightBoundaryRatio = .75
 
+		#boundary line on or off 
+		self.boundaryLineOn = False
+
+		#currently displayed 2d image
+		self.displayPictureFile = 'paint2dchest100.png'
+
+		#if boundary ratios have been changed
+		self.boundaryRatiosChanged = True
+
 		#display app title
 		self.appTitle = QtWidgets.QLabel('Welcome to the 2d application')
 
@@ -35,10 +44,18 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#display defect / chest area ratio
 		self.areaRatioButton = QtWidgets.QPushButton('Calculate defect / chest ratio')
 		self.areaRatioButton.clicked.connect(self.calculateDefectChestRatio)
+
+		#display boundary lines
+		self.boundary_lines = QtWidgets.QPushButton('Toggle display Boundary Lines')
+		self.boundary_lines.clicked.connect(self.displayBoundaryLine)
+
+		#switch back to default images
+		self.defaultImage = QtWidgets.QPushButton('Switch back to default image')
+		self.defaultImage.clicked.connect(self.switchDefaultImage)
 		
 		#display picture in window
 		self.picture = QtWidgets.QLabel()
-		self.picture.setPixmap(QtGui.QPixmap('paint2dchest100.png'))
+		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 		
 		#this is the layout setup horizontal boxes in a wrapping vertical layout
 		h_box_instruct = QtWidgets.QHBoxLayout()
@@ -50,6 +67,10 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		h_box_buttons.addWidget(self.rightButton)
 		h_box_buttons.addWidget(self.areaRatioButton)
 
+		h_box_switch_boundary_line = QtWidgets.QHBoxLayout()
+		h_box_switch_boundary_line.addWidget(self.defaultImage)
+		h_box_switch_boundary_line.addWidget(self.boundary_lines)
+
 		h_box_status = QtWidgets.QHBoxLayout()
 		h_box_status.addWidget(self.text)
 		
@@ -59,12 +80,55 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		vertical_box = QtWidgets.QVBoxLayout()
 		vertical_box.addLayout(h_box_instruct)
 		vertical_box.addLayout(h_box_buttons)
+		vertical_box.addLayout(h_box_switch_boundary_line)
 		vertical_box.addLayout(h_box_status)
 		vertical_box.addLayout(h_box_picture)
 		
 		self.setLayout(vertical_box)
 		
 		self.show()
+
+	def switchDefaultImage(self):
+		self.displayPictureFile = 'paint2dchest100.png'
+		self.boundaryLineOn = False
+		self.boundaryRatiosChanged = True
+		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+
+	def displayBoundaryLine(self):
+		image = misc.imread(self.displayPictureFile)
+		X = image.shape[0]
+		Y = image.shape[1]
+
+		#draw or erase left boundary line
+		y = self.leftBoundaryRatio * Y
+		if(self.boundaryLineOn):
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+		elif(not self.boundaryRatiosChanged):
+			self.picture.setPixmap(QtGui.QPixmap('temp.png'))
+		else:
+			for x in range(0, X):
+				image[x][y][0] = 178
+				image[x][y][1] = 34
+				image[x][y][2] = 34
+
+			#draw or erase left center line
+			y = self.centerBoundaryRatio * Y
+			for x in range(0, X):
+				image[x][y][0] = 178
+				image[x][y][1] = 34
+				image[x][y][2] = 34
+
+			#draw or erase right center line
+			y = self.rightBoundaryRatio * Y
+			for x in range(0, X):
+				image[x][y][0] = 178
+				image[x][y][1] = 34
+				image[x][y][2] = 34
+
+		misc.imsave('temp.png', image)
+		self.picture.setPixmap(QtGui.QPixmap('temp.png'))
+
+		self.boundaryLineOn = not self.boundaryLineOn
 
 		
 	def calculateDefectChestRatio(self):
@@ -154,7 +218,8 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			misc.imsave('outfile.png', image)
 		else:
 			misc.imsave('outfile2.png', image)
-			self.picture.setPixmap(QtGui.QPixmap('outfile2.png'))
+			self.displayPictureFile = 'outfile2.png'
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
 		return Area_Pixels
 		
