@@ -35,14 +35,17 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#display text in window
 		self.text = QtWidgets.QLabel('Please select an option')
 		
-		#center left lung vertical line button
+		#set left lung vertical line button
 		self.leftButton = QtWidgets.QPushButton('Set defect left boundary')
+		self.leftButton.clicked.connect(self.setLeftBoundary)
 
 		#Center sternum vertical line button
 		self.centerButton = QtWidgets.QPushButton('Set center vertical line')
-		
-		#Center right lung vertical line button
+		self.centerButton.clicked.connect(self.setCenterBoundary)
+
+		#set right lung vertical line button
 		self.rightButton = QtWidgets.QPushButton('Set defect right boundary')
+		self.rightButton.clicked.connect(self.setRightBoundary)
 		
 		#display defect / chest area ratio
 		self.areaRatioButton = QtWidgets.QPushButton('Calculate defect / chest ratio')
@@ -91,6 +94,46 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		
 		self.show()
 
+	def setLeftBoundary(self):
+		maxPercent = (float(self.centerBoundaryRatio) * 100) - 1
+		if(maxPercent < 0):
+			maxPercent = 0
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Left Boundary", "Percentage of Image:", 25, 0, maxPercent, 1)
+		self.leftBoundaryRatio = float(percent) / 100
+		if(ok):
+			self.boundaryRatiosChanged = True
+			self.text.setText('Please select an option')
+			self.switchDefaultImage()
+			self.displayBoundaryLine()
+			print "successfully set new left boundary ratio"
+
+	def setCenterBoundary(self):
+		maxPercent = (float(self.rightBoundaryRatio) * 100) - 1
+		if(maxPercent < 0):
+			maxPercent = 0		
+		minPercent = (float(self.leftBoundaryRatio) * 100) + 1
+
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Center line", "Percentage of Image:", 50, minPercent, maxPercent, 1)
+		self.centerBoundaryRatio = float(percent) / 100
+		if(ok):
+			self.boundaryRatiosChanged = True
+			self.text.setText('Please select an option')
+			self.switchDefaultImage()
+			self.displayBoundaryLine()
+			print "successfully set new center boundary ratio"
+
+	def setRightBoundary(self):
+		minPercent = (float(self.centerBoundaryRatio) * 100) + 1
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Right line", "Percentage of Image:", 75, minPercent, 99, 1)
+		self.rightBoundaryRatio = float(percent) / 100
+		if(ok):
+			self.boundaryRatiosChanged = True
+			self.text.setText('Please select an option')
+			self.switchDefaultImage()
+			self.displayBoundaryLine()
+			print "successfully set new right boundary ratio"		
+
+
 	def switchDefaultImage(self):
 		self.displayPictureFile = 'paint2dchest100.png'
 		self.boundaryLineOn = False
@@ -105,8 +148,6 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		y = self.leftBoundaryRatio * Y
 		if(self.boundaryLineOn):
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
-		elif(not self.boundaryRatiosChanged):
-			self.picture.setPixmap(QtGui.QPixmap('temp.png'))
 		else:
 			for x in range(0, X):
 				image[x][y][0] = 178
@@ -134,7 +175,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		
 	def calculateDefectChestRatio(self):
-		if(self.ran_defect_chest_ratio):
+		if(self.ran_defect_chest_ratio and not self.boundaryRatiosChanged):
 			self.displayPictureFile = 'outfile2.png'
 			self.boundaryLineOn = False
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
@@ -227,6 +268,8 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			misc.imsave('outfile2.png', image)
 			self.displayPictureFile = 'outfile2.png'
 			self.ran_defect_chest_ratio = True
+			self.boundaryRatiosChanged = False
+			self.boundaryLineOn = False
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
 		return Area_Pixels
