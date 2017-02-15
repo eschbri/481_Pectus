@@ -106,7 +106,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		maxPercent = (float(self.centerBoundaryRatio) * 100) - 1
 		if(maxPercent < 0):
 			maxPercent = 0
-		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Left Boundary", "Percentage of Image:", 25, 0, maxPercent, 1)
+		currentPercent = float(self.leftBoundaryRatio) * 100
+
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Left Boundary", "Percentage of Image:", currentPercent, 0, maxPercent, 1)
 		self.leftBoundaryRatio = float(percent) / 100
 		if(ok):
 			self.boundaryRatiosChanged = True
@@ -120,8 +122,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		if(maxPercent < 0):
 			maxPercent = 0		
 		minPercent = (float(self.leftBoundaryRatio) * 100) + 1
+		currentPercent = float(self.centerBoundaryRatio) * 100
 
-		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Center line", "Percentage of Image:", 50, minPercent, maxPercent, 1)
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Center line", "Percentage of Image:", currentPercent, minPercent, maxPercent, 1)
 		self.centerBoundaryRatio = float(percent) / 100
 		if(ok):
 			self.boundaryRatiosChanged = True
@@ -132,7 +135,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 	def setRightBoundary(self):
 		minPercent = (float(self.centerBoundaryRatio) * 100) + 1
-		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Right line", "Percentage of Image:", 75, minPercent, 99, 1)
+		currentPercent = float(self.rightBoundaryRatio) * 100
+
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Right line", "Percentage of Image:", currentPercent, minPercent, 99, 1)
 		self.rightBoundaryRatio = float(percent) / 100
 		if(ok):
 			self.boundaryRatiosChanged = True
