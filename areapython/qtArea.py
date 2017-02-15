@@ -29,6 +29,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#if already ran defect/chest ratio
 		self.ran_defect_chest_ratio = False
 
+		#if already ran asymmetry ratio
+		self.ran_asymmetry_ratio = False
+
 		#display app title
 		self.appTitle = QtWidgets.QLabel('Welcome to the 2d application')
 
@@ -51,6 +54,10 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.areaRatioButton = QtWidgets.QPushButton('Calculate defect / chest ratio')
 		self.areaRatioButton.clicked.connect(self.calculateDefectChestRatio)
 
+		#display left / right area ratio
+		self.asymmetryRatioButton = QtWidgets.QPushButton('Calculate left / right ratio')
+		self.asymmetryRatioButton.clicked.connect(self.calculateAsymmetryRatio)
+
 		#display boundary lines
 		self.boundary_lines = QtWidgets.QPushButton('Toggle display Boundary Lines')
 		self.boundary_lines.clicked.connect(self.displayBoundaryLine)
@@ -72,6 +79,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		h_box_buttons.addWidget(self.centerButton)
 		h_box_buttons.addWidget(self.rightButton)
 		h_box_buttons.addWidget(self.areaRatioButton)
+		h_box_buttons.addWidget(self.asymmetryRatioButton)
 
 		h_box_switch_boundary_line = QtWidgets.QHBoxLayout()
 		h_box_switch_boundary_line.addWidget(self.defaultImage)
@@ -185,6 +193,18 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			ratio = float(defectPixels) / chestPixels
 			self.text.setText('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
 				+ ' pixels. The defect / chest ratio is: ' + str(ratio))
+
+	def calculateAsymmetryRatio(self):
+		if(self.ran_asymmetry_ratio and not self.boundaryRatiosChanged):
+			self.displayPictureFile = 'outfileRight.png'
+			self.boundaryLineOn = False
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+		else:
+			leftPixels = self.pixelCount('left', "paint2dchest100.png")
+			rightPixels = self.pixelCount('right', "outfileLeft.png")
+			ratio = float(leftPixels) / rightPixels
+			self.text.setText('Left contains: ' + str(leftPixels) + ' pixels. Right contains: ' + str(rightPixels) 
+				+ ' pixels. The left / right ratio is: ' + str(ratio))
 		
 		
 	def pixelCount(self, areaType, filename):
@@ -199,9 +219,12 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#the defect boundaries are default or chosen by the doctor
 		rightBoundaryDefect = self.rightBoundaryRatio * Y
 		leftBoundaryDefect = self.leftBoundaryRatio * Y
+
+		#center line
+		centerLine = self.centerBoundaryRatio * Y
 		
 		#start with y at center line, and go down until inside chest then set the starting x value
-		if(areaType == 'chest'):
+		if(areaType == 'chest' or areaType == 'left' or areaType == 'right'):
 			x = 0
 			y = self.centerBoundaryRatio * Y
 			hitChest = False
@@ -211,7 +234,11 @@ class AreaRatioWindow(QtWidgets.QWidget):
 				elif(hitChest and image[x][y][0] == 255):
 					starting_x = x
 					break;			
-				x += 1						
+				x += 1		
+			if areaType == 'left':
+				starting_y -= 1
+			elif areaType == 'right':
+				starting_y += 1		
 		
 		Area_Pixels = 0
 		
@@ -240,7 +267,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 				if y-1 >= 0 and image[x][y-1][0] == 255 and visited[x, y-1] == 0:
 					visited[x, y-1] = 1
 					stack.append([x, y-1])
-		else:
+		elif(areaType == 'defect'):
 			while len(stack) != 0:
 				x, y = stack.pop()
 				Area_Pixels += 1
@@ -260,14 +287,64 @@ class AreaRatioWindow(QtWidgets.QWidget):
 				if y-1 >= 0 and image[x][y-1][0] == 255 and visited[x, y-1] == 0 and (y - 1) > leftBoundaryDefect:
 					visited[x, y-1] = 1
 					stack.append([x, y-1])
+		elif(areaType == 'left'):
+			while len(stack) != 0:
+				x, y = stack.pop()
+				Area_Pixels += 1
+				image[x][y][0] = 0
+				image[x][y][1] = 255
+				image[x][y][2] = 0
+			
+				if x+1 < X and image[x+1][y][0] == 255 and visited[x+1, y] == 0:
+					visited[x+1, y] = 1
+					stack.append([x+1, y])
+				if x-1 >= 0 and image[x-1][y][0] == 255 and visited[x-1, y] == 0:
+					visited[x-1, y] = 1
+					stack.append([x-1, y])
+				if y+1 < Y and image[x][y+1][0] == 255 and visited[x, y+1] == 0 and (y + 1) < centerLine:
+					visited[x, y+1] = 1
+					stack.append([x, y+1])
+				if y-1 >= 0 and image[x][y-1][0] == 255 and visited[x, y-1] == 0:
+					visited[x, y-1] = 1
+					stack.append([x, y-1])
+		elif(areaType == 'right'):
+			while len(stack) != 0:
+				x, y = stack.pop()
+				Area_Pixels += 1
+				image[x][y][0] = 0
+				image[x][y][1] = 0
+				image[x][y][2] = 255
+			
+				if x+1 < X and image[x+1][y][0] == 255 and visited[x+1, y] == 0:
+					visited[x+1, y] = 1
+					stack.append([x+1, y])
+				if x-1 >= 0 and image[x-1][y][0] == 255 and visited[x-1, y] == 0:
+					visited[x-1, y] = 1
+					stack.append([x-1, y])
+				if y+1 < Y and image[x][y+1][0] == 255 and visited[x, y+1] == 0:
+					visited[x, y+1] = 1
+					stack.append([x, y+1])
+				if y-1 >= 0 and image[x][y-1][0] == 255 and visited[x, y-1] == 0 and y-1>centerLine:
+					visited[x, y-1] = 1
+					stack.append([x, y-1])
+
 		
 		print Area_Pixels
 		if(areaType == 'chest'):
 			misc.imsave('outfile.png', image)
-		else:
+		elif(areaType == 'defect'):
 			misc.imsave('outfile2.png', image)
 			self.displayPictureFile = 'outfile2.png'
 			self.ran_defect_chest_ratio = True
+			self.boundaryRatiosChanged = False
+			self.boundaryLineOn = False
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+		elif(areaType == 'left'):
+			misc.imsave('outfileLeft.png', image)
+		elif(areaType == 'right'):
+			misc.imsave('outfileRight.png', image)
+			self.displayPictureFile = 'outfileRight.png'
+			self.ran_asymmetry_ratio = True
 			self.boundaryRatiosChanged = False
 			self.boundaryLineOn = False
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
