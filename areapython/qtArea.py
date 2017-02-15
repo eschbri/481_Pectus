@@ -32,6 +32,12 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#if already ran asymmetry ratio
 		self.ran_asymmetry_ratio = False
 
+		#saved solution text defect / chest ratio
+		self.defectChestRatioSolution = ''
+
+		#saved solution text asymmetric ratio 
+		self.asymmetricRatio = ''
+
 		#display app title
 		self.appTitle = QtWidgets.QLabel('Welcome to the 2d application')
 
@@ -191,25 +197,31 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		if(self.ran_defect_chest_ratio and not self.boundaryRatiosChanged):
 			self.displayPictureFile = 'outfile2.png'
 			self.boundaryLineOn = False
+			self.text.setText(self.defectChestRatioSolution)
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 		else:
 			chestPixels = self.pixelCount('chest', "paint2dchest100.png")
 			defectPixels = self.pixelCount('defect', "outfile.png")
 			ratio = float(defectPixels) / chestPixels
-			self.text.setText('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
+
+			self.defectChestRatioSolution = ('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
 				+ ' pixels. The defect / chest ratio is: ' + str(ratio))
+			self.text.setText(self.defectChestRatioSolution)
 
 	def calculateAsymmetryRatio(self):
 		if(self.ran_asymmetry_ratio and not self.boundaryRatiosChanged):
 			self.displayPictureFile = 'outfileRight.png'
 			self.boundaryLineOn = False
+			self.text.setText(self.asymmetricRatio)
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 		else:
 			leftPixels = self.pixelCount('left', "paint2dchest100.png")
 			rightPixels = self.pixelCount('right', "outfileLeft.png")
 			ratio = float(leftPixels) / rightPixels
-			self.text.setText('Left contains: ' + str(leftPixels) + ' pixels. Right contains: ' + str(rightPixels) 
+					
+			self.asymmetricRatio = ('Left contains: ' + str(leftPixels) + ' pixels. Right contains: ' + str(rightPixels) 
 				+ ' pixels. The left / right ratio is: ' + str(ratio))
+			self.text.setText(self.asymmetricRatio)
 		
 		
 	def pixelCount(self, areaType, filename):
