@@ -17,28 +17,51 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.centerBoundaryRatio = .5
 		self.rightBoundaryRatio = .75
 
+		#boundary line on or off 
+		self.boundaryLineOn = False
+
+		#currently displayed 2d image
+		self.displayPictureFile = 'paint2dchest100.png'
+
+		#if boundary ratios have been changed
+		self.boundaryRatiosChanged = True
+
+		#if already ran defect/chest ratio
+		self.ran_defect_chest_ratio = False
+
 		#display app title
 		self.appTitle = QtWidgets.QLabel('Welcome to the 2d application')
 
 		#display text in window
 		self.text = QtWidgets.QLabel('Please select an option')
 		
-		#center left lung vertical line button
+		#set left lung vertical line button
 		self.leftButton = QtWidgets.QPushButton('Set defect left boundary')
+		self.leftButton.clicked.connect(self.setLeftBoundary)
 
 		#Center sternum vertical line button
 		self.centerButton = QtWidgets.QPushButton('Set center vertical line')
-		
-		#Center right lung vertical line button
+		self.centerButton.clicked.connect(self.setCenterBoundary)
+
+		#set right lung vertical line button
 		self.rightButton = QtWidgets.QPushButton('Set defect right boundary')
+		self.rightButton.clicked.connect(self.setRightBoundary)
 		
 		#display defect / chest area ratio
 		self.areaRatioButton = QtWidgets.QPushButton('Calculate defect / chest ratio')
 		self.areaRatioButton.clicked.connect(self.calculateDefectChestRatio)
+
+		#display boundary lines
+		self.boundary_lines = QtWidgets.QPushButton('Toggle display Boundary Lines')
+		self.boundary_lines.clicked.connect(self.displayBoundaryLine)
+
+		#switch back to default images
+		self.defaultImage = QtWidgets.QPushButton('Switch back to default image')
+		self.defaultImage.clicked.connect(self.switchDefaultImage)
 		
 		#display picture in window
 		self.picture = QtWidgets.QLabel()
-		self.picture.setPixmap(QtGui.QPixmap('paint2dchest100.png'))
+		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 		
 		#this is the layout setup horizontal boxes in a wrapping vertical layout
 		h_box_instruct = QtWidgets.QHBoxLayout()
@@ -50,6 +73,10 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		h_box_buttons.addWidget(self.rightButton)
 		h_box_buttons.addWidget(self.areaRatioButton)
 
+		h_box_switch_boundary_line = QtWidgets.QHBoxLayout()
+		h_box_switch_boundary_line.addWidget(self.defaultImage)
+		h_box_switch_boundary_line.addWidget(self.boundary_lines)
+
 		h_box_status = QtWidgets.QHBoxLayout()
 		h_box_status.addWidget(self.text)
 		
@@ -59,6 +86,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		vertical_box = QtWidgets.QVBoxLayout()
 		vertical_box.addLayout(h_box_instruct)
 		vertical_box.addLayout(h_box_buttons)
+		vertical_box.addLayout(h_box_switch_boundary_line)
 		vertical_box.addLayout(h_box_status)
 		vertical_box.addLayout(h_box_picture)
 		
@@ -66,13 +94,97 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		
 		self.show()
 
+	def setLeftBoundary(self):
+		maxPercent = (float(self.centerBoundaryRatio) * 100) - 1
+		if(maxPercent < 0):
+			maxPercent = 0
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Left Boundary", "Percentage of Image:", 25, 0, maxPercent, 1)
+		self.leftBoundaryRatio = float(percent) / 100
+		if(ok):
+			self.boundaryRatiosChanged = True
+			self.text.setText('Please select an option')
+			self.switchDefaultImage()
+			self.displayBoundaryLine()
+			print "successfully set new left boundary ratio"
+
+	def setCenterBoundary(self):
+		maxPercent = (float(self.rightBoundaryRatio) * 100) - 1
+		if(maxPercent < 0):
+			maxPercent = 0		
+		minPercent = (float(self.leftBoundaryRatio) * 100) + 1
+
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Center line", "Percentage of Image:", 50, minPercent, maxPercent, 1)
+		self.centerBoundaryRatio = float(percent) / 100
+		if(ok):
+			self.boundaryRatiosChanged = True
+			self.text.setText('Please select an option')
+			self.switchDefaultImage()
+			self.displayBoundaryLine()
+			print "successfully set new center boundary ratio"
+
+	def setRightBoundary(self):
+		minPercent = (float(self.centerBoundaryRatio) * 100) + 1
+		percent, ok = QtWidgets.QInputDialog.getInt(self, "Set Right line", "Percentage of Image:", 75, minPercent, 99, 1)
+		self.rightBoundaryRatio = float(percent) / 100
+		if(ok):
+			self.boundaryRatiosChanged = True
+			self.text.setText('Please select an option')
+			self.switchDefaultImage()
+			self.displayBoundaryLine()
+			print "successfully set new right boundary ratio"		
+
+
+	def switchDefaultImage(self):
+		self.displayPictureFile = 'paint2dchest100.png'
+		self.boundaryLineOn = False
+		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+
+	def displayBoundaryLine(self):
+		image = misc.imread(self.displayPictureFile)
+		X = image.shape[0]
+		Y = image.shape[1]
+
+		#draw or erase left boundary line
+		y = self.leftBoundaryRatio * Y
+		if(self.boundaryLineOn):
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+		else:
+			for x in range(0, X):
+				image[x][y][0] = 178
+				image[x][y][1] = 34
+				image[x][y][2] = 34
+
+			#draw or erase left center line
+			y = self.centerBoundaryRatio * Y
+			for x in range(0, X):
+				image[x][y][0] = 178
+				image[x][y][1] = 34
+				image[x][y][2] = 34
+
+			#draw or erase right center line
+			y = self.rightBoundaryRatio * Y
+			for x in range(0, X):
+				image[x][y][0] = 178
+				image[x][y][1] = 34
+				image[x][y][2] = 34
+
+		misc.imsave('temp.png', image)
+		self.picture.setPixmap(QtGui.QPixmap('temp.png'))
+
+		self.boundaryLineOn = not self.boundaryLineOn
+
 		
 	def calculateDefectChestRatio(self):
-		chestPixels = self.pixelCount('chest', "paint2dchest100.png")
-		defectPixels = self.pixelCount('defect', "outfile.png")
-		ratio = float(defectPixels) / chestPixels
-		self.text.setText('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
-			+ ' pixels. The defect / chest ratio is: ' + str(ratio))
+		if(self.ran_defect_chest_ratio and not self.boundaryRatiosChanged):
+			self.displayPictureFile = 'outfile2.png'
+			self.boundaryLineOn = False
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+		else:
+			chestPixels = self.pixelCount('chest', "paint2dchest100.png")
+			defectPixels = self.pixelCount('defect', "outfile.png")
+			ratio = float(defectPixels) / chestPixels
+			self.text.setText('Defect contains: ' + str(defectPixels) + ' pixels. Chest contains: ' + str(chestPixels) 
+				+ ' pixels. The defect / chest ratio is: ' + str(ratio))
 		
 		
 	def pixelCount(self, areaType, filename):
@@ -154,7 +266,11 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			misc.imsave('outfile.png', image)
 		else:
 			misc.imsave('outfile2.png', image)
-			self.picture.setPixmap(QtGui.QPixmap('outfile2.png'))
+			self.displayPictureFile = 'outfile2.png'
+			self.ran_defect_chest_ratio = True
+			self.boundaryRatiosChanged = False
+			self.boundaryLineOn = False
+			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
 		return Area_Pixels
 		
