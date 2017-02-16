@@ -1,5 +1,6 @@
 import sys
 from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import Qt
 from scipy import misc
 import numpy as np
 
@@ -12,6 +13,26 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.init_window()
 		
 	def init_window(self):
+		#slice number files
+		self.slice1 = 'paint2dchest100.png'
+		self.slice2 = 'paint2dchest200.png'
+		self.slice3 = 'paint2dchest300.png'
+		self.slice4 = 'paint2dchest400.png'
+		self.slice5 = 'paint2dchest500.png'
+		self.slice6 = 'paint2dchest600.png'
+		self.slice7 = 'paint2dchest700.png'
+		self.slice8 = 'paint2dchest800.png'
+		self.slice9 = 'paint2dchest900.png'
+		self.slice10 = 'paint2dchest1000.png'
+		self.slice11 = 'paint2dchest110.png'
+		self.slice12 = 'paint2dchest120.png'
+
+		#current slice
+		self.currentSlice = self.slice7
+
+		#if slice has changed
+		self.sliceChanged = False
+
 		#default bounday ratios, can later be changed by doctor
 		self.leftBoundaryRatio = .25
 		self.centerBoundaryRatio = .5
@@ -21,7 +42,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.boundaryLineOn = False
 
 		#currently displayed 2d image
-		self.displayPictureFile = 'paint2dchest100.png'
+		self.displayPictureFile = self.slice7
 
 		#if boundary ratios have been changed
 		self.boundaryRatiosChanged = True
@@ -43,6 +64,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		#display text in window
 		self.text = QtWidgets.QLabel('Please select an option')
+
+		#display current slice text
+		self.sliceText = QtWidgets.QLabel('You are currently on slice 7')
 		
 		#set left lung vertical line button
 		self.leftButton = QtWidgets.QPushButton('Set defect left boundary')
@@ -68,13 +92,24 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.boundary_lines = QtWidgets.QPushButton('Toggle display Boundary Lines')
 		self.boundary_lines.clicked.connect(self.displayBoundaryLine)
 
-		#switch back to default images
-		self.defaultImage = QtWidgets.QPushButton('Switch back to default image')
-		self.defaultImage.clicked.connect(self.switchDefaultImage)
-		
 		#display picture in window
 		self.picture = QtWidgets.QLabel()
 		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+
+		#switch back to default images
+		self.defaultImage = QtWidgets.QPushButton('Switch back to default image')
+		self.defaultImage.clicked.connect(self.switchDefaultImageButton)
+
+		#slider widget to display different 2d slices
+		self.slider = QtWidgets.QSlider(Qt.Vertical)
+		self.slider.valueChanged[int].connect(self.changeSlice)
+		self.slider.setMaximum(12)
+		self.slider.setMinimum(1)
+		self.slider.setValue(6)
+
+		#right panel picture
+		self.rightPanelPicture = QtWidgets.QLabel()
+		self.rightPanelPicture.setPixmap(QtGui.QPixmap('body202cropped.png'))
 		
 		#this is the layout setup horizontal boxes in a wrapping vertical layout
 		h_box_instruct = QtWidgets.QHBoxLayout()
@@ -93,20 +128,76 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		h_box_status = QtWidgets.QHBoxLayout()
 		h_box_status.addWidget(self.text)
+
+		h_box_curr_slice = QtWidgets.QHBoxLayout()
+		h_box_curr_slice.addWidget(self.sliceText)
 		
 		h_box_picture = QtWidgets.QHBoxLayout()
 		h_box_picture.addWidget(self.picture)
+		h_box_picture.addWidget(self.slider)
 		
 		vertical_box = QtWidgets.QVBoxLayout()
 		vertical_box.addLayout(h_box_instruct)
 		vertical_box.addLayout(h_box_buttons)
 		vertical_box.addLayout(h_box_switch_boundary_line)
 		vertical_box.addLayout(h_box_status)
+		vertical_box.addLayout(h_box_curr_slice)
 		vertical_box.addLayout(h_box_picture)
+
+		right_vertical_box = QtWidgets.QVBoxLayout()
+		right_vertical_box.addWidget(self.rightPanelPicture)
+
+		outer_h_box = QtWidgets.QHBoxLayout()
+		outer_h_box.addLayout(vertical_box)
+		outer_h_box.addLayout(right_vertical_box)
 		
-		self.setLayout(vertical_box)
+		self.setLayout(outer_h_box)
 		
 		self.show()
+
+	def changeSlice(self, sliceNumber):
+		#the numbers in the picture from top to bottem goes from 1 to 12 so we have to reverse
+		self.text.setText("Please pick an option")
+		self.sliceChanged = True
+		self.ran_asymmetry_ratio = False
+		self.ran_defect_chest_ratio = False
+
+		if sliceNumber == 12:
+			self.sliceText.setText('You are currently on slice 1')
+			self.switchDefaultImage(self.slice1)
+		elif sliceNumber == 11:
+			self.sliceText.setText('You are currently on slice 2')
+			self.switchDefaultImage(self.slice2)
+		elif sliceNumber == 10:
+			self.sliceText.setText('You are currently on slice 3')
+			self.switchDefaultImage(self.slice3)
+		elif sliceNumber == 9:
+			self.sliceText.setText('You are currently on slice 4')
+			self.switchDefaultImage(self.slice4)
+		elif sliceNumber == 8:
+			self.sliceText.setText('You are currently on slice 5')
+			self.switchDefaultImage(self.slice5)
+		elif sliceNumber == 7:
+			self.sliceText.setText('You are currently on slice 6')
+			self.switchDefaultImage(self.slice6)
+		elif sliceNumber == 6:
+			self.sliceText.setText('You are currently on slice 7')
+			self.switchDefaultImage(self.slice7)
+		elif sliceNumber == 5:
+			self.sliceText.setText('You are currently on slice 8')
+			self.switchDefaultImage(self.slice8)
+		elif sliceNumber == 4:
+			self.sliceText.setText('You are currently on slice 9')
+			self.switchDefaultImage(self.slice9)
+		elif sliceNumber == 3:
+			self.sliceText.setText('You are currently on slice 10')
+			self.switchDefaultImage(self.slice10)
+		elif sliceNumber == 2:
+			self.sliceText.setText('You are currently on slice 11')
+			self.switchDefaultImage(self.slice11)
+		elif sliceNumber == 1:
+			self.sliceText.setText('You are currently on slice 12')
+			self.switchDefaultImage(self.slice12)
 
 	def setLeftBoundary(self):
 		maxPercent = (float(self.centerBoundaryRatio) * 100) - 1
@@ -119,8 +210,10 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		if(ok):
 			self.boundaryRatiosChanged = True
 			self.text.setText('Please select an option')
-			self.switchDefaultImage()
+			self.switchDefaultImage(self.currentSlice)
 			self.displayBoundaryLine()
+			self.ran_defect_chest_ratio = False
+			self.ran_asymmetry_ratio = False
 			print "successfully set new left boundary ratio"
 
 	def setCenterBoundary(self):
@@ -135,8 +228,10 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		if(ok):
 			self.boundaryRatiosChanged = True
 			self.text.setText('Please select an option')
-			self.switchDefaultImage()
+			self.switchDefaultImage(self.currentSlice)
 			self.displayBoundaryLine()
+			self.ran_defect_chest_ratio = False
+			self.ran_asymmetry_ratio = False
 			print "successfully set new center boundary ratio"
 
 	def setRightBoundary(self):
@@ -148,13 +243,19 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		if(ok):
 			self.boundaryRatiosChanged = True
 			self.text.setText('Please select an option')
-			self.switchDefaultImage()
+			self.switchDefaultImage(self.currentSlice)
 			self.displayBoundaryLine()
-			print "successfully set new right boundary ratio"		
+			self.ran_defect_chest_ratio = False
+			self.ran_asymmetry_ratio = False
+			print "successfully set new right boundary ratio"
+
+	def switchDefaultImageButton(self):	
+		self.switchDefaultImage(self.currentSlice)
 
 
-	def switchDefaultImage(self):
-		self.displayPictureFile = 'paint2dchest100.png'
+	def switchDefaultImage(self, sliceNumber):
+		self.currentSlice = sliceNumber
+		self.displayPictureFile = sliceNumber
 		self.boundaryLineOn = False
 		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
@@ -194,13 +295,13 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		
 	def calculateDefectChestRatio(self):
-		if(self.ran_defect_chest_ratio and not self.boundaryRatiosChanged):
+		if(self.ran_defect_chest_ratio and not self.boundaryRatiosChanged and not self.sliceChanged):
 			self.displayPictureFile = 'outfile2.png'
 			self.boundaryLineOn = False
 			self.text.setText(self.defectChestRatioSolution)
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 		else:
-			chestPixels = self.pixelCount('chest', "paint2dchest100.png")
+			chestPixels = self.pixelCount('chest', self.currentSlice)
 			defectPixels = self.pixelCount('defect', "outfile.png")
 			ratio = float(defectPixels) / chestPixels
 
@@ -209,13 +310,13 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			self.text.setText(self.defectChestRatioSolution)
 
 	def calculateAsymmetryRatio(self):
-		if(self.ran_asymmetry_ratio and not self.boundaryRatiosChanged):
+		if(self.ran_asymmetry_ratio and not self.boundaryRatiosChanged and not self.sliceChanged):
 			self.displayPictureFile = 'outfileRight.png'
 			self.boundaryLineOn = False
 			self.text.setText(self.asymmetricRatio)
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 		else:
-			leftPixels = self.pixelCount('left', "paint2dchest100.png")
+			leftPixels = self.pixelCount('left', self.currentSlice)
 			rightPixels = self.pixelCount('right', "outfileLeft.png")
 			ratio = float(leftPixels) / rightPixels
 					
@@ -355,6 +456,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			self.ran_defect_chest_ratio = True
 			self.boundaryRatiosChanged = False
 			self.boundaryLineOn = False
+			self.sliceChanged = False
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 		elif(areaType == 'left'):
 			misc.imsave('outfileLeft.png', image)
@@ -364,6 +466,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			self.ran_asymmetry_ratio = True
 			self.boundaryRatiosChanged = False
 			self.boundaryLineOn = False
+			self.sliceChanged = False
 			self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
 		return Area_Pixels
