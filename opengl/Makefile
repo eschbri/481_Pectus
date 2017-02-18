@@ -5,7 +5,7 @@ CFLAGS = -c -g -std=c++11 -pedantic-errors -Wall
 LFLAGS = -lGL -lGLEW -lglfw3 -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -pthread -ldl
 OBJS = common.o playground.o Window.o
 
-PROG = playground
+PROG = exe_playground
 
 default: $(PROG)
 
