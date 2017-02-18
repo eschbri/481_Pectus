@@ -31,9 +31,6 @@ int main(){
 		return -1;
 	}
 
-	// Ensure we can capture the escape key being pressed below
-	glfwSetInputMode(glfwWindow.getWindow(), GLFW_STICKY_KEYS, GL_TRUE);
-
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -54,7 +51,7 @@ int main(){
 	// Create and compile our GLSL program from the shaders
 	GLuint programID = LoadShaders("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
-	do{
+	while(!glfwWindow.closed()){
 		// Clear screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -79,8 +76,7 @@ int main(){
 		// Swap buffers
 		glfwWindow.swapBuffers();
 
-	} while(glfwGetKey(glfwWindow.getWindow(), GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-		glfwWindow.closed()); // Check if the ESC key was pressed or the window was closed
+	}
 
 	return 0;
 }

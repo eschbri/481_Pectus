@@ -17,6 +17,9 @@ Window::Window(int width_, int height_, const char* title_){
 		throw WindowError("Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible.");
     	}
 	glfwMakeContextCurrent(window);
+
+	// Ensure we can capture the escape key being pressed below
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 }
 
 Window::~Window(){
@@ -24,11 +27,8 @@ Window::~Window(){
 }
 
 bool Window::closed() const{
-	return glfwWindowShouldClose(window) == 0;
-}
-
-GLFWwindow* Window::getWindow() const{
-	return window;
+	return glfwGetKey(window, GLFW_KEY_ESCAPE ) == GLFW_PRESS ||
+	glfwWindowShouldClose(window) != 0;
 }
 
 void Window::swapBuffers(){

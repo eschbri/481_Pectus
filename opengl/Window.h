@@ -12,7 +12,6 @@ public:
 	~Window();
 
 	bool closed() const;
-	GLFWwindow* getWindow() const;
 	void swapBuffers();
 	
 private:
