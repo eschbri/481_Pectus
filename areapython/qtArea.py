@@ -5,62 +5,62 @@ from scipy import misc
 import numpy as np
 
 class ClickableLabel(QtWidgets.QLabel):
-    def __init__(self):
-        QtWidgets.QLabel.__init__(self)
-        self.__hallerListener = None
+	def __init__(self):
+		QtWidgets.QLabel.__init__(self)
+		self.__hallerListener = None
 
-    def mouseReleaseEvent(self, mouseEvent):
-        if not self.__hallerListener == None:
-            self.__hallerListener(mouseEvent)
+	def mouseReleaseEvent(self, mouseEvent):
+		if not self.__hallerListener == None:
+			self.__hallerListener(mouseEvent)
 
-    def attach(self, fn, force = False):
-        if self.__hallerListener == None or force:
-            self.__hallerListener = fn
+	def attach(self, fn, force = False):
+		if self.__hallerListener == None or force:
+			self.__hallerListener = fn
 
-    def detach(self):
-        self.__hallerListener = None
+	def detach(self):
+		self.__hallerListener = None
 
 class HallerIndex():
-    def __init__(self):
-        self.clearHorz()
-        self.clearVert()
+	def __init__(self):
+		self.clearHorz()
+		self.clearVert()
 
-    def calculate(self):
-        if self.horz1 != None and self.horz2 != None and self.vert1 != None and self.vert2 != None:
-            return abs(self.horz1 - self.horz2) / abs(self.vert1 - self.vert2)
-        raise ValueError('Coordinates have not been set before calculation')
+	def calculate(self):
+		if self.horz1 != None and self.horz2 != None and self.vert1 != None and self.vert2 != None:
+			return abs(self.horz1 - self.horz2) / abs(self.vert1 - self.vert2)
+		raise ValueError('Coordinates have not been set before calculation')
 
-    def clearVert(self):
-        self.vert1 = None
-        self.vert2 = None
+	def clearVert(self):
+		self.vert1 = None
+		self.vert2 = None
 
-    def clearHorz(self):
-        self.horz1 = None
-        self.horz2 = None
+	def clearHorz(self):
+		self.horz1 = None
+		self.horz2 = None
 
-    def setVert(self, vert):
-        if self.vert1 == None:
-            self.vert1 = float(vert)
-            return
-        if self.vert2 == None:
-            self.vert2 = float(vert)
-            return
-        raise ValueError('Vertical coordinates have already been set')
+	def setVert(self, vert):
+		if self.vert1 == None:
+			self.vert1 = float(vert)
+			return
+		if self.vert2 == None:
+			self.vert2 = float(vert)
+			return
+		raise ValueError('Vertical coordinates have already been set')
 
-    def setHorz(self, horz):
-        if self.horz1 == None:
-            self.horz1 = float(horz)
-            return
-        if self.horz2 == None:
-            self.horz2 = float(horz)
-            return
-        raise ValueError('Horizontal coordinates have already been set')
+	def setHorz(self, horz):
+		if self.horz1 == None:
+			self.horz1 = float(horz)
+			return
+		if self.horz2 == None:
+			self.horz2 = float(horz)
+			return
+		raise ValueError('Horizontal coordinates have already been set')
 
-    def horzIsSet(self):
-        return self.horz2 != None
+	def horzIsSet(self):
+		return self.horz2 != None
 
-    def vertIsSet(self):
-        return self.vert2 != None
+	def vertIsSet(self):
+		return self.vert2 != None
 
 
 class AreaRatioWindow(QtWidgets.QWidget):
@@ -86,8 +86,8 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.slice11 = 'paint2dchest110.png'
 		self.slice12 = 'paint2dchest120.png'
 
-                #Haller index
-                self.hallerIndex = HallerIndex()
+		#Haller index
+		self.hallerIndex = HallerIndex()
 
 		#current slice
 		self.currentSlice = self.slice7
@@ -116,8 +116,8 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#saved solution text defect / chest ratio
 		self.defectChestRatioSolution = ''
 
-                #bool representing if listener is attached
-                self.listenerAttached = False
+		#bool representing if listener is attached
+		self.listenerAttached = False
 
 		#saved solution text asymmetric ratio 
 		self.asymmetricRatio = ''
@@ -157,7 +157,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		#display picture in window
 		#self.picture = QtWidgets.QLabel()
-                self.picture = ClickableLabel()
+		self.picture = ClickableLabel()
 		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
 
 		#switch back to default images
@@ -171,16 +171,16 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.slider.setMinimum(1)
 		self.slider.setValue(6)
 
-                #set Haller horizontal selector
-                self.hallerHorz = QtWidgets.QPushButton('Set horizontal Haller')
-                self.hallerHorz.clicked.connect(self.attachHallerHorzListener)
+		#set Haller horizontal selector
+		self.hallerHorz = QtWidgets.QPushButton('Set horizontal Haller')
+		self.hallerHorz.clicked.connect(self.attachHallerHorzListener)
 
-                #set Haller vertical selector
-                self.hallerVert = QtWidgets.QPushButton('Set vertical Haller')
-                self.hallerVert.clicked.connect(self.attachHallerVertListener)
+		#set Haller vertical selector
+		self.hallerVert = QtWidgets.QPushButton('Set vertical Haller')
+		self.hallerVert.clicked.connect(self.attachHallerVertListener)
 
-                #set Haller display
-                self.hallerDisplay = QtWidgets.QLabel('Haller index')
+		#set Haller display
+		self.hallerDisplay = QtWidgets.QLabel('Haller index')
 
 		#right panel picture
 		self.rightPanelPicture = QtWidgets.QLabel()
@@ -201,9 +201,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		h_box_switch_boundary_line.addWidget(self.defaultImage)
 		h_box_switch_boundary_line.addWidget(self.boundary_lines)
 
-                h_box_haller_buttons = QtWidgets.QHBoxLayout()
-                h_box_haller_buttons.addWidget(self.hallerHorz)
-                h_box_haller_buttons.addWidget(self.hallerVert)
+		h_box_haller_buttons = QtWidgets.QHBoxLayout()
+		h_box_haller_buttons.addWidget(self.hallerHorz)
+		h_box_haller_buttons.addWidget(self.hallerVert)
 
 		h_box_status = QtWidgets.QHBoxLayout()
 		h_box_status.addWidget(self.text)
@@ -211,8 +211,8 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		h_box_curr_slice = QtWidgets.QHBoxLayout()
 		h_box_curr_slice.addWidget(self.sliceText)
 
-                h_box_haller_status = QtWidgets.QHBoxLayout()
-                h_box_haller_status.addWidget(self.hallerDisplay)
+		h_box_haller_status = QtWidgets.QHBoxLayout()
+		h_box_haller_status.addWidget(self.hallerDisplay)
 		
 		h_box_picture = QtWidgets.QHBoxLayout()
 		h_box_picture.addWidget(self.picture)
@@ -221,11 +221,11 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		vertical_box = QtWidgets.QVBoxLayout()
 		vertical_box.addLayout(h_box_instruct)
 		vertical_box.addLayout(h_box_buttons)
-                vertical_box.addLayout(h_box_haller_buttons)
+		vertical_box.addLayout(h_box_haller_buttons)
 		vertical_box.addLayout(h_box_switch_boundary_line)
 		vertical_box.addLayout(h_box_status)
 		vertical_box.addLayout(h_box_curr_slice)
-                vertical_box.addLayout(h_box_haller_status)
+		vertical_box.addLayout(h_box_haller_status)
 		vertical_box.addLayout(h_box_picture)
 
 		right_vertical_box = QtWidgets.QVBoxLayout()
@@ -239,35 +239,63 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		
 		self.show()
 
-        def attachHallerHorzListener(self):
-            self.hallerIndex.clearHorz()
-            self.picture.attach(self.hallerHorzHandler)
+	def attachHallerHorzListener(self):
+		self.hallerIndex.clearHorz()
+		self.picture.attach(self.hallerHorzHandler)
+	def attachHallerVertListener(self):
+		self.hallerIndex.clearVert()
+		self.picture.attach(self.hallerVertHandler)
 
-        def attachHallerVertListener(self):
-            self.hallerIndex.clearVert()
-            self.picture.attach(self.hallerVertHandler)
+	def hallerHorzHandler(self, event):
+		if not self.hallerIndex.horzIsSet():
+			self.hallerIndex.setHorz(event.x())
 
-        def hallerHorzHandler(self, event):
-            if not self.hallerIndex.horzIsSet():
-                self.hallerIndex.setHorz(event.x())
-            if self.hallerIndex.horzIsSet():
-                self.picture.detach()
-            self.displayHallerIndex()
+			coordY = event.x() 
+			coordX = event.y() - 105
+			image = misc.imread(self.displayPictureFile)
+			X = image.shape[0]
+			Y = image.shape[1]
+			print "x: " + str(event.x()) + " y: " + str(event.y()), " X: " + str(X) + " Y: " + str(Y)
+			image[coordX][coordY][0] = 220
+			image[coordX][coordY][1] = 20
+			image[coordX][coordY][2] = 60
+			for i in range(0,7):
+				if(coordY+i < Y):
+					image[coordX][coordY+i][0] = 220
+					image[coordX][coordY+i][1] = 20
+					image[coordX][coordY+i][2] = 60  
+				if(coordY-i > 0):
+					image[coordX][coordY-i][0] = 220
+					image[coordX][coordY-i][1] = 20
+					image[coordX][coordY-i][2] = 60
+				if(coordX+i < X):
+					image[coordX+i][coordY][0] = 220
+					image[coordX+i][coordY][1] = 20
+					image[coordX+i][coordY][2] = 60
+				if(coordX-i > 0):
+					image[coordX-i][coordY][0] = 220
+					image[coordX-i][coordY][1] = 20
+					image[coordX-i][coordY][2] = 60
+			misc.imsave('temp.png', image)
+			self.picture.setPixmap(QtGui.QPixmap('temp.png'))
+		if self.hallerIndex.horzIsSet():
+			self.picture.detach()
+		self.displayHallerIndex()
 
-        def hallerVertHandler(self, event):
-            if not self.hallerIndex.vertIsSet():
-                self.hallerIndex.setVert(event.y())
-            if self.hallerIndex.vertIsSet():
-                self.picture.detach()
-            self.displayHallerIndex()
+	def hallerVertHandler(self, event):
+		if not self.hallerIndex.vertIsSet():
+			self.hallerIndex.setVert(event.y())
+		if self.hallerIndex.vertIsSet():
+			self.picture.detach()
+		self.displayHallerIndex()
 
-        def displayHallerIndex(self):
-            try:
-                index = self.hallerIndex.calculate()
-                self.hallerDisplay.setText('Haller Index: ' + str(index))
-            except ValueError as e:
-                self.hallerDisplay.setText('Haller Index: ')
-                
+	def displayHallerIndex(self):
+		try:
+			index = self.hallerIndex.calculate()
+			self.hallerDisplay.setText('Haller Index: ' + str(index))
+		except ValueError as e:
+			self.hallerDisplay.setText('Haller Index: ')
+				
 
 
 	def changeSlice(self, sliceNumber):
