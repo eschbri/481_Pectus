@@ -16,9 +16,14 @@ using namespace glm;
 using namespace std;
 
 static const GLfloat g_vertex_buffer_data[] = {
-	-1.0f, -1.0f, 0.0f,
-	1.0f, -1.0f, 0.0f,
 	0.0f,  1.0f, 0.0f,
+	1.0f, 0.0f, 0.0f,
+
+	-1.0f, -1.0f, 0.0f,
+	0.0f, 1.0f, 0.0f,
+
+	1.0f, -1.0f, 0.0f,
+	0.0f, 0.0f, 1.0f,
 };
 
 int main(){
@@ -31,8 +36,8 @@ int main(){
 		return -1;
 	}
 
-	// Dark blue background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	// Black background
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Create Vertex Array Object
 	GLuint VertexArrayID;
@@ -56,9 +61,19 @@ int main(){
 		3,                  // size
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
-		0,                  // stride
+		sizeof(float) * 6,                  // stride
 		(void*)0            // array buffer offset
 	);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(
+			1,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(float) * 6,
+			(char*)(sizeof(float) * 3)
+			);
 
 	while(!glfwWindow.closed()){
 		// Clear screen
