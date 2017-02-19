@@ -2,6 +2,7 @@
 #define WINDOW_H
 
 #include <stdexcept>
+#include "Controls.h"
 
 // Forward declaration of Window
 class GLFWwindow;
@@ -13,6 +14,9 @@ public:
 
 	bool closed() const;
 	void swapBuffers();
+
+	GLFWwindow* getWindow() const
+		{ return window; }
 	
 private:
 	GLFWwindow* window;
