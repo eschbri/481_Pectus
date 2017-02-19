@@ -7,7 +7,9 @@
 
 #include <GLFW/glfw3.h>
 
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "common.h"
 #include "Window.h"
@@ -74,6 +76,16 @@ int main(){
 			sizeof(float) * 6,
 			(char*)(sizeof(float) * 3)
 			);
+
+	// Create a matrix for transformations
+	GLuint matrixId = glGetUniformLocation(programID, "mvp");
+	glm::mat4 model = glm::mat4(1.0f); // Create identity matrix
+	glm::mat4 view = glm::lookAt(glm::vec3(4, 3, 3), // Camera is at (4, 3, 3) in world space
+			glm::vec3(0, 0, 0), // and looks at the origin
+			glm::vec3(0, 1, 0)); // Head is up (set to 0, -1, 0 to look upside down
+	glm::mat4 projection = glm::perspective(45.0f / 4.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 mvp = projection * view * model;
+	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &mvp[0][0]);
 
 	while(!glfwWindow.closed()){
 		// Clear screen

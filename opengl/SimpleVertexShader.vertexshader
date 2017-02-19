@@ -6,12 +6,11 @@ layout(location = 1) in vec3 vertexColor;
 
 out vec3 theColor;
 
+//Values that stay constant for the whole mesh
+uniform mat4 mvp;
+
 void main(){
-
-    gl_Position.xyz = vertexPosition_modelspace;
-    gl_Position.w = 1.0;
-
+	gl_Position = mvp * vec4(vertexPosition_modelspace, 1);
 	theColor = vertexColor;
-
 }
 
