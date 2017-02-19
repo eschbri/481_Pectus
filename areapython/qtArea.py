@@ -618,6 +618,9 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		
 	def calculateDefectChestRatio(self):
+		if(self.centerBoundaryRatio > .65 or self.centerBoundaryRatio < .35):
+			self.text.setText('***the center boundary has to be less than 66% or greater then 34% to perform this calculation***')
+			return 
 		if(self.ran_defect_chest_ratio and not self.boundaryRatiosChanged and not self.sliceChanged):
 			self.displayPictureFile = 'outfile2.png'
 			self.boundaryLineOn = False
