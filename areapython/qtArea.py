@@ -184,6 +184,12 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#display text in window
 		self.text = QtWidgets.QLabel('Please select an option')
 
+		#set Haller display
+		self.hallerDisplay = QtWidgets.QLabel('Haller index: ')
+
+		#set lung / sternum to vertebre ratio
+		self.lungSternumToVertebreDisplay = QtWidgets.QLabel('Lung back to front / Sternum to vertebre ratio: ')
+
 		#display current slice text
 		self.sliceText = QtWidgets.QLabel('You are currently on slice 7')
 		
@@ -235,9 +241,6 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.hallerVert = QtWidgets.QPushButton('Set vertical Haller')
 		self.hallerVert.clicked.connect(self.attachHallerVertListener)
 
-		#set Haller display
-		self.hallerDisplay = QtWidgets.QLabel('Haller index')
-
 		#set Haller label
 		self.hallerLabel = QtWidgets.QLabel('Haller index Buttons')
 
@@ -248,9 +251,6 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		#set sternum to vertebre vertical selector
 		self.sternumToVertebre = QtWidgets.QPushButton('Set vertical sternum to vertebre')
 		self.sternumToVertebre.clicked.connect(self.attachHallerSTVListener)
-
-		#set lung / sternum to vertebre ratio
-		self.lungSternumToVertebreDisplay = QtWidgets.QLabel('Lung back to front / Sternum to vertebre ratio')
 
 		#set lung / sternum to vertebre ratio
 		self.lungSternumToVertebreLabel = QtWidgets.QLabel('Lung back to front / Sternum to vertebre ratio Buttons')
@@ -383,7 +383,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 	def lungHandler(self, event):
 		if(self.hallerHoriCount > 0 or self.hallerVertCount > 0):
-			self.switchDefaultImage(self.currentSlice)
+			self.clearClickAttach(self.currentSlice)
 		self.lungCount += 1
 		if(self.lungCount > 3):
 			self.lungCount = 1
@@ -401,7 +401,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 	def sternumHandler(self, event):
 		if(self.hallerHoriCount > 0 or self.hallerVertCount > 0):
-			self.switchDefaultImage(self.currentSlice)
+			self.clearClickAttach(self.currentSlice)
 		self.STVCount += 1
 		if(self.STVCount > 3):
 			self.STVCount = 1
@@ -427,7 +427,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 	def hallerHorzHandler(self, event):
 		if(self.lungCount > 0 or self.STVCount > 0):
-			self.switchDefaultImage(self.currentSlice)
+			self.clearClickAttach(self.currentSlice)
 		self.hallerHoriCount += 1
 		if(self.hallerHoriCount > 3):
 			self.hallerHoriCount = 1
@@ -445,7 +445,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 	def hallerVertHandler(self, event):
 		if(self.lungCount > 0 or self.STVCount > 0):
-			self.switchDefaultImage(self.currentSlice)
+			self.clearClickAttach(self.currentSlice)
 		self.hallerVertCount += 1
 		if(self.hallerVertCount > 3):
 			self.hallerVertCount = 1
@@ -576,11 +576,49 @@ class AreaRatioWindow(QtWidgets.QWidget):
 		self.lungCount = 0 
 		self.STVCount = 0 
 		self.hallerVertCount = 0 
+		self.hallerIndex.clearHorz()
+		self.hallerIndex.clearVert()
+		self.backToFrontSternumToVertebreRatio.clearLung()
+		self.backToFrontSternumToVertebreRatio.clearSternum()
+		self.hallerDisplay.setText('Haller Index: ')
+		self.lungSternumToVertebreDisplay.setText('lung back to front / sternum to vertebre ratio: ')
+
+		self.picture.detach()
+		self.currentSlice = sliceNumber
+		self.displayPictureFile = sliceNumber
+		self.boundaryLineOn = False
+		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+
+	def clearClickAttach(self, sliceNumber):
+		self.hallerHoriCount = 0 
+		self.lungCount = 0 
+		self.STVCount = 0 
+		self.hallerVertCount = 0 
+		self.hallerIndex.clearHorz()
+		self.hallerIndex.clearVert()
+		self.backToFrontSternumToVertebreRatio.clearLung()
+		self.backToFrontSternumToVertebreRatio.clearSternum()
+		self.hallerDisplay.setText('Haller Index: ')
+		self.lungSternumToVertebreDisplay.setText('lung back to front / sternum to vertebre ratio: ')
 
 		self.currentSlice = sliceNumber
 		self.displayPictureFile = sliceNumber
 		self.boundaryLineOn = False
 		self.picture.setPixmap(QtGui.QPixmap(self.displayPictureFile))
+
+	def clearClickAttachWithDetach(self):
+		self.hallerHoriCount = 0 
+		self.lungCount = 0 
+		self.STVCount = 0 
+		self.hallerVertCount = 0 
+		self.hallerIndex.clearHorz()
+		self.hallerIndex.clearVert()
+		self.backToFrontSternumToVertebreRatio.clearLung()
+		self.backToFrontSternumToVertebreRatio.clearSternum()
+		self.hallerDisplay.setText('Haller Index: ')
+		self.lungSternumToVertebreDisplay.setText('lung back to front / sternum to vertebre ratio: ')
+		self.picture.detach()
+
 
 	def displayBoundaryLine(self):
 		image = misc.imread(self.displayPictureFile)
@@ -618,6 +656,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 
 		
 	def calculateDefectChestRatio(self):
+		self.clearClickAttachWithDetach()
 		if(self.centerBoundaryRatio > .65 or self.centerBoundaryRatio < .35):
 			self.text.setText('***the center boundary has to be less than 66% or greater then 34% to perform this calculation***')
 			return 
@@ -636,6 +675,7 @@ class AreaRatioWindow(QtWidgets.QWidget):
 			self.text.setText(self.defectChestRatioSolution)
 
 	def calculateAsymmetryRatio(self):
+		self.clearClickAttachWithDetach()
 		if(self.ran_asymmetry_ratio and not self.boundaryRatiosChanged and not self.sliceChanged):
 			self.displayPictureFile = 'outfileRight.png'
 			self.boundaryLineOn = False
