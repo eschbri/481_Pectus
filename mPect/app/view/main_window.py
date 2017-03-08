@@ -1,4 +1,7 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog, QLabel, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
 class main_window(QMainWindow):
 
@@ -12,20 +15,27 @@ class main_window(QMainWindow):
         self.statusBar().showMessage('Ready')
 
         self.addMenuBar()
-        self.addButtons()
 
-        self.resize(800, 600)
+        # Create and set a central widget
+        self.cwidg = QWidget(self)
+        self.setCentralWidget(self.cwidg)
+
+        self.setupLayout()
+
+        self.resize(1600, 800)
         self.move(300,300)
         self.setWindowTitle("MPect")
+
+
 
     def addMenuBar(self):
         mbar = self.menuBar()
 
         fileMenu = mbar.addMenu('&File')
 
-        self.addActions(fileMenu)
+        self.setActions(fileMenu)
 
-    def addActions(self, menu):
+    def setActions(self, menu):
 
         # actions
         exitAction = QAction('&Quit', self)
@@ -42,15 +52,43 @@ class main_window(QMainWindow):
         menu.addAction(exitAction)
         menu.addAction(openAction)
 
-    def addButtons(self):
-        btn = QPushButton('View Plot', self)
-        yBtn = QPushButton('Flip Y', self)
+    def setupLayout(self):
+        plotBox = QHBoxLayout()
 
-        btn.clicked.connect(self.controller.showPlot)
+        plotBox.addWidget(self.setUpPlot("bodyFigure"))
+        plotBox.addWidget(self.setUpPlot("sliceFigure"))
+
+        buttonBox = QHBoxLayout()
+
+        yBtn = QPushButton('Flip Y')
+        sBtn = QPushButton('Save Slice')
+
         yBtn.clicked.connect(self.controller.flipY)
+        sBtn.clicked.connect(self.controller.saveSlice)
 
-        btn.move(25,50)
-        yBtn.move(25,100)
+        buttonBox.addStretch(1)
+        buttonBox.addWidget(yBtn)
+        buttonBox.addWidget(sBtn)
+
+        vbox = QVBoxLayout()
+
+        self.plotText = QLabel()
+        self.plotText.setText("<b>Open a file with Ctrl+O</b>")
+        self.controller.addLabelText(self.plotText)
+
+        vbox.addWidget(self.plotText)
+        vbox.addLayout(plotBox)
+        vbox.addLayout(buttonBox)
+
+        self.cwidg.setLayout(vbox)
+
+    def setUpPlot(self, name):
+        fig = Figure(figsize=(300,300), dpi=72)
+        f = FigureCanvas(fig)
+
+        self.controller.addFigure(name, f)
+
+        return f
 
     def openDialog(self):
         filename = QFileDialog.getOpenFileName(self, 'Open File')

@@ -120,7 +120,7 @@ class Model(object):
 
 
 
-    def get2D(self, plane):
+    def get2D(self, plane, fig, sliceAction):
         if len(plane) != 2 or plane not in ["xy","yz","xz"]:
             raise Exception("Invalid plane.\n\tValid planes are [\"xy\",\"yz\",\"xz\"")
 
@@ -129,30 +129,26 @@ class Model(object):
         ys = [self.vertices[i].y for i in self.cVertices]
         zs = [self.vertices[i].z for i in self.cVertices]
 
-        fig = plt.figure()
+        fig.clf()
+
+        axes = fig.add_subplot(111)
+        axes.set_axis_off()
 
         if plane == "xy":
-            plt.scatter(xs, ys, c=zs, s=100, cmap='gray')
+            axes.scatter(xs, ys, c=zs, s=100, cmap='gray')
         elif plane == "yz":
-            plt.scatter(ys, zs, c=xs, s=100, cmap='gray')
+            axes.scatter(ys, zs, c=xs, s=100, cmap='gray')
         elif plane == "xz":
-            plt.scatter(xs, zs, c=ys, s=100, cmap='gray')
+            axes.scatter(xs, zs, c=ys, s=100, cmap='gray')
 
-        constraints = []
 
-        def onclick(event):
-            constraints.append((event.xdata.item(), event.ydata.item()))
-
-            plt.plot([self.minx, self.maxx], [event.ydata.item(), event.ydata.item()], 'r--')
-            fig.canvas.draw()
+        onclick = sliceAction(axes)
 
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
-        plt.show()
+        #fig.canvas.mpl_disconnect(cid)
 
-        fig.canvas.mpl_disconnect(cid)
-
-        return constraints
+        #return constraints
 
     def drawConstraints(self, plane):
         if len(plane) != 2 or plane not in ["xy","yz","xz"]:
