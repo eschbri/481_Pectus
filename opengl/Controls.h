@@ -2,6 +2,7 @@
 #define CONTROLS_H
 
 #include <glm/glm.hpp>
+#include "Camera.h"
 
 // Forward declaration
 class GLFWwindow;
@@ -13,12 +14,10 @@ public:
 	void attachWindow(const GLFWwindow& winow);
 	void updateViewMatrix(glm::mat4& viewMat);
 	void updateProjectionMatrix(glm::mat4& projMat);
+
 private:
-	glm::vec3 position;
-	glm::vec3 direction;
-	glm::vec3 right;
-	glm::vec3 up;
-	float speed; // Speed for keyboard controls
+	Camera camera;
+	double lastTime;
 	float verticalAngle;
 	float horizontalAngle;
 	float fov;
