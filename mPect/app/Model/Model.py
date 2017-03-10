@@ -240,7 +240,7 @@ class Model(object):
 
                 x = t0.x + (t1.x - t0.x) * factor
                 z = t0.z + (t1.z - t0.z) * factor
-
+                
                 results.append((x,z))
 
         if len(results) < 2:
@@ -254,10 +254,27 @@ class Model(object):
 
         results = []
 
+        #linking list connecting points from 2d slice
+        #not sure about the white spaces until cropping is complete but 
+        #for now just do a simple dictionary match with each specfic point 
+        #having its own list of connecting points
+        linkingListSlice = {}
+
         for f in faces:
             points = self.sliceFByY(f, y)
             #results.append(points[0])
             #results.append(points[1])
+            
+            if points[0] not in linkingListSlice:
+                linkingListSlice[points[0]] = [points[1]]
+            else:
+                linkingListSlice[points[0]].append(points[1])
+
+            if points[1] not in linkingListSlice:
+                linkingListSlice[points[1]] = [points[0]]
+            else:
+                linkingListSlice[points[1]].append(points[0])
+
             results.append((points[0], points[1]))
 
         return results
