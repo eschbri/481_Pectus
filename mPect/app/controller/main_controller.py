@@ -5,6 +5,7 @@ from app.Model import Model
 from matplotlib import pyplot as plt
 import numpy as np
 from skimage import feature
+import StringIO
 
 class main_controller(QObject):
 
@@ -81,10 +82,13 @@ class main_controller(QObject):
         return inSlice
 
     def saveSlice(self):
+        imgBuffer = StringIO.StringIO()
         if len(self.constraints) > 0 and "sliceFigure" in self.figures:
-            self.figures["sliceFigure"].figure.savefig('slice.png')
+            #self.figures["sliceFigure"].figure.savefig('slice.png')
+            self.figures["sliceFigure"].figure.savefig(imgBuffer, format='png')
 
         self.labelText.setText("Saved slice as `slice.png`")
+        return imgBuffer
 
     def flipY(self):
         if self.model is not None:
