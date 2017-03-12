@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from Vertex import *
 from VertexNormal import *
 from Face import *
+from Slice import *
 from matplotlib import collections as mc
 
 class Model(object):
