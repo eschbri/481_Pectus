@@ -1,10 +1,12 @@
 from matplotlib import pyplot as plt
-class Slice(object):
 
+
+class Slice(object):
     # given the line segmentations representation
     # find the ordered vertices representation of a slice
     def __init__(self, lines):
 
+        self.lines = lines
         self.vertices = []
 
         point_dict = {}
@@ -70,6 +72,17 @@ class Slice(object):
         plt.plot(x_list, y_list)
         plt.show()
         '''
+
+    # Return the original lines
+    def getLines(self):
+        return self.lines
+
+    # Chop off a portion of the lines
+    def chop(self, p1, p2, p3):
+        # TODO: Figure out which side of the p1/p2 line p3 is
+        # TODO: Ask the controller to discard the correct piece of the slice
+        # TODO: Rejoin the pieces of the slice
+        return
 
     #calculate the defect/chest ratio
     def defectRatio(self, x0, y0, x1, y1):

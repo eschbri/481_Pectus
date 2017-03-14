@@ -278,7 +278,10 @@ class Model(object):
 
             results.append((points[0], points[1]))
 
-        return results
+        retSlice = Slice(results)
+
+        #return results
+        return retSlice
 
     def printStats(self):
         print "Total vertices: " + str(len(self.vertices))
