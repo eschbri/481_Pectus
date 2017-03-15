@@ -9,27 +9,27 @@ class Slice(object):
         self.lines = lines
         self.vertices = []
 
-        point_dict = {}
+        self.point_dict = {}
         visited = {}
         for l in lines:
-            if l[0] not in point_dict:
-                point_dict[l[0]] = []
+            if l[0] not in self.point_dict:
+                self.point_dict[l[0]] = []
                 visited[l[0]] = 0
-            if l[1] not in point_dict:
-                point_dict[l[1]] = []
+            if l[1] not in self.point_dict:
+                self.point_dict[l[1]] = []
                 visited[l[1]] = 0
-            point_dict[l[0]].append(l[1])
-            point_dict[l[1]].append(l[0])
+            self.point_dict[l[0]].append(l[1])
+            self.point_dict[l[1]].append(l[0])
 
         curr = lines[0][0]
         visited[curr] = 1
         self.vertices.append(curr)
-        next = point_dict[curr][0]
-        for i in range(len(point_dict)):
+        next = self.point_dict[curr][0]
+        for i in range(len(self.point_dict)):
             if visited[next] == 0:
                 visited[next] = 1
                 self.vertices.append(next)
-                connected = point_dict[next]
+                connected = self.point_dict[next]
                 if visited[connected[0]] == 0:
                     curr = next
                     next = connected[0]
@@ -54,7 +54,7 @@ class Slice(object):
                                     break
                             visited[curr] = 1
                             self.vertices.append(curr)
-                            next = point_dict[curr][0]
+                            next = self.point_dict[curr][0]
                         else:
                             break
             else:
@@ -194,6 +194,78 @@ class Slice(object):
         '''
         return areaPolygon(point_list)
 
+    #the function assumes that the slice has a standard concave 
+    #this function also assumes that self.vertices is correct, and the arms are "cut off"
+    #might need to modify function to handle a slice without standard concave
+    def hallerIndex(self):
+        point_list = []
+        prev_slope = ''
+        two_lowest_z_peaks = [(1,1),(1,1)]
+        left_lung_x = 1
+        right_lung_x = 0
+
+        #find the two low peaks surrounding the concave
+        for i in range(len(self.vertices)):
+            if left_lung_x > self.vertices[i-1][0]:
+                left_lung_x = self.vertices[i-1][0]
+            if right_lung_x < self.vertices[i-1][0]:
+                right_lung_x = self.vertices[i-1][0]
+
+            v = self.vertices[i]
+            prev_v = self.vertices[i-1]
+            if v[1] > prev_v[1]:
+                curr_slope = 'positive'
+            elif v[1] == prev_v[1]:
+                curr_slope = 'flat'
+            else:
+                curr_slope = 'negative'
+
+            if prev_slope == '':
+                prev_slope = curr_slope
+            elif curr_slope != prev_slope and curr_slope != 'flat':
+                point_list.append(prev_v)
+                for i in range(len(two_lowest_z_peaks)):
+                    if prev_v[1] < two_lowest_z_peaks[i][1]:
+                        two_lowest_z_peaks[i] = prev_v 
+
+            left_peak = (0,0)
+            right_peak = (0,0)
+            if two_lowest_z_peaks[0][0] < two_lowest_z_peaks[1][0]:
+                left_peak = two_lowest_z_peaks[0]
+                right_peak = two_lowest_z_peaks[1]
+            else:
+                left_peak = two_lowest_z_peaks[1]
+                right_peak = two_lowest_z_peaks[0]
+
+        #the sternum is marked at the highest point z axis before a change in slope direction
+        curr = left_peak
+        sternum_point = curr
+        while curr != right_peak:
+            if curr[1] < sternum_point[1]:
+                sternum_point = curr
+
+            if self.point_dict[curr][0][0] < self.point_dict[curr][1][0]:
+                curr = self.point_dict[curr][1]
+            else:
+                curr = self.point_dict[curr][0]
+
+        #find the point that intercepts the x of the sternum for the vertebre point
+        vertebre_point = (0,0)
+        for i in range(len(self.vertices)):
+            if self.vertices[i-1][0] == sternum_point[0] and self.vertices[i-1][1] > sternum_point[1]:
+                vertebre_point = self.vertices[i-1][1]
+                break
+            elif self.vertices[i-1][0] <= sternum_point[0] and self.vertices[i][0] >= sternum_point[0]:
+                if self.vertices[i-1][1] > sternum_point[1] and self.vertices[i][1] > sternum_point[1]:
+                    vertebre_point = hallerIntersection(self.vertices[i-1], self.vertices[i], sternum_point)
+                    break
+            elif self.vertices[i-1][0] >= sternum_point[0] and self.vertices[i][0] <= sternum_point[0]:
+                if self.vertices[i-1][1] > sternum_point[1] and self.vertices[i][1] > sternum_point[1]:
+                    vertebre_point = hallerIntersection(self.vertices[i-1], self.vertices[i], sternum_point)
+                    break
+        #print str(right_lung_x) + " " + str(left_lung_x) + " " + str(vertebre_point[1]) + " " + str(sternum_point[1])
+        return (right_lung_x - left_lung_x) / (vertebre_point[1] - sternum_point[1])
+
 #calcualte the area given vertices using Shoelace formula
 def areaPolygon(vertices):
     area = 0.0
@@ -230,4 +302,10 @@ def findIntersection(x0, y0, x1, y1, x2, y2, x3, y3):
         y = k0 * x + b0
     return (x, y) 
 
+def hallerIntersection(p1, p2, p3):
+    k = (p1[1] - p2[1]) / (p1[0] - p2[0])
+    x = p3[0]
+    b = p1[1] - (k * p1[0])
+    z = (k * p3[0]) + b
+    return (x, z)
 
