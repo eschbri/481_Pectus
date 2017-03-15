@@ -75,14 +75,40 @@ class Slice(object):
 
     # Return the original lines
     def getLines(self):
-        return self.lines
+        lines = []
+
+        for i in range(len(self.vertices) - 1):
+            lines.append((self.vertices[i], self.vertices[i+1]))
+
+        lines.append((self.vertices[len(self.vertices) - 1],self.vertices[0]))
+
+        return lines
+
+    def sign(self, n):
+        if n > 0:
+            return 1
+        elif n < 0:
+            return -1
+        else:
+            return 0
+
+    def determine(self, p1, p2, p):
+        return self.sign( (p2[0] - p1[0])*(p[1] - p1[1]) - (p2[1] - p1[1])*(p[0] - p1[0]) )
 
     # Chop off a portion of the lines
     def chop(self, p1, p2, p3):
-        # TODO: Figure out which side of the p1/p2 line p3 is
-        # TODO: Ask the controller to discard the correct piece of the slice
-        # TODO: Rejoin the pieces of the slice
-        return
+        o = self.determine(p1, p2, p3)
+
+        rList = []
+
+        for i in range(len(self.vertices)):
+            c = self.determine(p1, p2, self.vertices[i])
+            if c == o or c == 0: # If point is on the erase side of line
+                rList.append(i)
+                #self.vertices.pop(i)
+
+        for i in range(len(rList)-1,0,-1):
+            self.vertices.pop(rList[i])
 
     #calculate the defect/chest ratio
     def defectRatio(self, x0, y0, x1, y1):

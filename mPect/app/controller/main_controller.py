@@ -21,6 +21,9 @@ class main_controller(QObject):
         # Controller modes
         self.mode = "init"
 
+        # Slice Editing Data
+        self.sdata = {}
+
 
     def load_model(self, filename):
         self.model = Model.Model()
@@ -71,8 +74,17 @@ class main_controller(QObject):
             axes.set_axis_off()
 
             # Plot all the lines
-            for r in self.slice.lines:
+            for r in self.slice.getLines():
                 axes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
+
+            if hasattr(self, 'sliceEventID'):
+                self.figures["sliceFigure"].figure.canvas.mpl_disconnect(self.sliceEventID)
+
+            self.sliceEventID = self.figures["sliceFigure"].figure.canvas.mpl_connect('button_press_event', self.editAction(axes))
+            self.sdata["c"] = 0
+            self.sdata["p1"] = (0,0)
+            self.sdata["p2"] = (0,0)
+            self.sdata["p3"] = (0,0)
 
             self.figures["sliceFigure"].draw()
         else:
@@ -83,6 +95,10 @@ class main_controller(QObject):
     def sliceAction(self, axes):
         s = self
         def inSlice(event):
+            # Make sure we're in slice mode
+            if s.mode != "slice":
+                return
+
             # Throw the click coords into the list of lines called "constraints"
             s.constraints.append((event.xdata.item(), event.ydata.item()))
 
@@ -95,14 +111,22 @@ class main_controller(QObject):
 
     # Modify the slice by clipping off a portion of it
     # p1 and p2 make the line, and p3 is the direction in which to erase.
-    def editSlice(self, p1, p2, p3):
+    def editSlice(self, p1, p2, p3, axes):
         # For undo purposes
         self.oldSlice = self.slice
 
         self.slice.chop(p1,p2,p3)
 
         # TODO: ReDraw the slice image with the new slice
+        axes.cla()
 
+        axes.axis([0,self.model.maxx, 0, self.model.maxx])
+        axes.set_axis_off()
+
+        for r in self.slice.getLines():
+            axes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
+
+        self.figures["sliceFigure"].draw()
 
     # Action for clicking the slice figure
     # Has three modes: First point, second point, eraser
@@ -113,27 +137,30 @@ class main_controller(QObject):
             if s.mode != "edit":
                 return
 
-            c = 0
+            if s.sdata["c"] == 0:
+                s.sdata["p1"] = (event.xdata.item(), event.ydata.item())
 
-            p1, p2, p3 = (0, 0)
-
-            if c == 0:
-                p1 = (event.xdata.item(), event.ydata.item())
-            elif c == 1:
-                p2 = (event.xdata.item(), event.ydata.item())
+                s.view.statusBar().showMessage("P1 Selected")
+            elif s.sdata["c"] == 1:
+                s.sdata["p2"] = (event.xdata.item(), event.ydata.item())
                 #TODO: Draw a line
+                axes.plot([s.sdata["p1"][0], s.sdata["p2"][0]],[s.sdata["p1"][1], s.sdata["p2"][1]], 'r--')
+                s.figures["sliceFigure"].draw()
 
-            elif c == 2:
+                s.view.statusBar().showMessage("P2 Selected")
+            elif s.sdata["c"] == 2:
                 # Eraser Mode
-                p3 = (event.xdata.item(), event.ydata.item())
+                s.sdata["p3"] = (event.xdata.item(), event.ydata.item())
 
                 # Edit the slice with this data
-                s.editSlice(p1, p2, p3)
+                s.editSlice(s.sdata["p1"], s.sdata["p2"], s.sdata["p3"], axes)
+
+                s.view.statusBar().showMessage("P3 Selected")
 
 
-            c = c + 1
-            if c > 2:
-                c = 0
+            s.sdata["c"] = s.sdata["c"] + 1
+            if s.sdata["c"] > 2:
+                s.sdata["c"] = 0
 
         return inAction
 
