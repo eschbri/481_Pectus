@@ -237,11 +237,11 @@ class Slice(object):
                 left_peak = two_lowest_z_peaks[1]
                 right_peak = two_lowest_z_peaks[0]
 
-        #the sternum is marked at the highest point z axis before a change in slope direction
+        #the sternum is marked at the highest point z axis between the two lowest z peaks
         curr = left_peak
         sternum_point = curr
         while curr != right_peak:
-            if curr[1] < sternum_point[1]:
+            if curr[1] > sternum_point[1]:
                 sternum_point = curr
 
             if self.point_dict[curr][0][0] < self.point_dict[curr][1][0]:
