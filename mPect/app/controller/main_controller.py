@@ -17,6 +17,7 @@ class main_controller(QObject):
         self.model = None
         self.view = view
         self.figures = dict()
+        self.hallerAxes = None
 
         # Controller modes
         self.mode = "init"
@@ -72,6 +73,8 @@ class main_controller(QObject):
             axes = self.figures["sliceFigure"].figure.add_subplot(111)
             axes.axis([0,self.model.maxx, 0, self.model.maxx])
             axes.set_axis_off()
+
+            self.hallerAxes = axes
 
             # Plot all the lines
             for r in self.slice.getLines():
@@ -198,3 +201,27 @@ class main_controller(QObject):
     # Modify the mode
     def switchMode(self, mode):
         self.mode = mode
+
+    #haller index show lines
+    def hallerIndexDisplay(self):
+        if self.hallerAxes != None:
+            # For undo purposes
+            self.oldSlice = self.slice
+
+            hallerPoints = self.slice.hallerIndex()
+
+            # TODO: ReDraw the slice image with the new slice
+            self.hallerAxes.cla()
+
+            self.hallerAxes.axis([0,self.model.maxx, 0, self.model.maxx])
+            self.hallerAxes.set_axis_off()
+
+            for r in self.slice.getLines():
+                self.hallerAxes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
+
+            self.hallerAxes.plot([hallerPoints[1][0], hallerPoints[2][0]], [hallerPoints[1][1], hallerPoints[2][1]], 'b-')
+            self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'b-')
+            #print "Haller Index: " + str(hallerPoints[0]) + "vertebre point: " + str(hallerPoints[1]) + "sternum point: " + str(hallerPoints[2])
+            #print "right lung point: " + str(hallerPoints[3]) + "left lung point: " + str(hallerPoints[4])
+
+            self.figures["sliceFigure"].draw()

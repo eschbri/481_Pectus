@@ -199,61 +199,126 @@ class Slice(object):
     #might need to modify function to handle a slice without standard concave
     def hallerIndex(self):
         point_list = []
-        prev_slope = ''
         two_lowest_z_peaks = [(1,1),(1,1)]
-        left_lung_x = 1
-        right_lung_x = 0
+        left_lung_x = (1,1)
+        right_lung_x = (0,0)
 
-        #find the two low peaks surrounding the concave
+        self.new_point_dict = {}
+        for l in range(len(self.vertices)-1):
+            if self.vertices[l] not in self.new_point_dict:
+                self.new_point_dict[self.vertices[l]] = []
+
+            self.new_point_dict[self.vertices[l]].append(self.vertices[l+1])
+            self.new_point_dict[self.vertices[l]].append(self.vertices[l-1])
+
+        if self.vertices[len(self.vertices)-1] not in self.new_point_dict:
+            self.new_point_dict[self.vertices[len(self.vertices)-1]] = []
+        self.new_point_dict[self.vertices[len(self.vertices)-1]].append(self.vertices[0])
+        self.new_point_dict[self.vertices[len(self.vertices)-1]].append(self.vertices[len(self.vertices)-2])
+
+        #find the two outer side horizontal points
         for i in range(len(self.vertices)):
-            if left_lung_x > self.vertices[i-1][0]:
-                left_lung_x = self.vertices[i-1][0]
-            if right_lung_x < self.vertices[i-1][0]:
-                right_lung_x = self.vertices[i-1][0]
+            if left_lung_x[0] > self.vertices[i][0]:
+                left_lung_x = self.vertices[i]
+            if right_lung_x[0] < self.vertices[i][0]:
+                right_lung_x = self.vertices[i]
 
-            v = self.vertices[i]
-            prev_v = self.vertices[i-1]
-            if v[1] > prev_v[1]:
-                curr_slope = 'positive'
-            elif v[1] == prev_v[1]:
-                curr_slope = 'flat'
+        midLine = (left_lung_x[0] + right_lung_x[0]) / 2
+        firstQuarterLine = midLine * .75
+        thirdQuarterLine = midLine * 1.25
+
+        #find left_peak to the left of midline
+        curr = left_lung_x
+        left_peak = (1,1)
+        right_peak = (1,1)
+        visited = {}
+
+        while curr[0] < midLine:
+            if curr not in visited:
+                visited[curr] = True
             else:
-                curr_slope = 'negative'
+                break
 
-            if prev_slope == '':
-                prev_slope = curr_slope
-            elif curr_slope != prev_slope and curr_slope != 'flat':
-                point_list.append(prev_v)
-                for i in range(len(two_lowest_z_peaks)):
-                    if prev_v[1] < two_lowest_z_peaks[i][1]:
-                        two_lowest_z_peaks[i] = prev_v 
+            if curr[1] < left_peak[1]:
+                left_peak = curr
 
-            left_peak = (0,0)
-            right_peak = (0,0)
-            if two_lowest_z_peaks[0][0] < two_lowest_z_peaks[1][0]:
-                left_peak = two_lowest_z_peaks[0]
-                right_peak = two_lowest_z_peaks[1]
+            prev_curr = curr
+            if self.new_point_dict[curr][1][1] < curr[1]:
+                curr = self.new_point_dict[curr][1]             
+            elif self.new_point_dict[curr][0][1] < curr[1]:
+                curr = self.new_point_dict[curr][0]
+            elif self.new_point_dict[curr][1][0] > curr[0]:
+                curr = self.new_point_dict[curr][1]
+            elif self.new_point_dict[curr][0][0] > curr[0]:
+                curr = self.new_point_dict[curr][0]
             else:
-                left_peak = two_lowest_z_peaks[1]
-                right_peak = two_lowest_z_peaks[0]
+                break
+
+
+        #find right_peak to the right of midline
+        curr = right_lung_x
+        visited = {}
+        while curr[0] > midLine:
+            if curr not in visited:
+                visited[curr] = True
+            else:
+                break
+
+            if curr[1] < right_peak[1]:
+                right_peak = curr
+
+            if self.new_point_dict[curr][1][1] < curr[1]:
+                curr = self.new_point_dict[curr][1]
+            elif self.new_point_dict[curr][0][1] < curr[1]:
+                curr = self.new_point_dict[curr][0]
+            elif self.new_point_dict[curr][1][0] < curr[0]:
+                curr = self.new_point_dict[curr][1]
+            elif self.new_point_dict[curr][0][0] < curr[0]:
+                curr = self.new_point_dict[curr][0]
+            else:
+                break
 
         #the sternum is marked at the highest point z axis between the two lowest z peaks
         curr = left_peak
-        sternum_point = curr
-        while curr != right_peak:
-            if curr[1] > sternum_point[1]:
+        sternum_point = (0,0)
+        visited = {}
+        while curr[0] < midLine:
+            if curr not in visited:
+                visited[curr] = True
+            else:
+                break
+
+            if curr[1] > sternum_point[1] and curr[0] > firstQuarterLine:
                 sternum_point = curr
 
-            if self.point_dict[curr][0][0] < self.point_dict[curr][1][0]:
-                curr = self.point_dict[curr][1]
+            if self.new_point_dict[curr][0][0] < self.new_point_dict[curr][1][0]:
+                curr = self.new_point_dict[curr][1]
             else:
-                curr = self.point_dict[curr][0]
+                curr = self.new_point_dict[curr][0]
+
+        
+        #the sternum is marked at the highest point z axis between the two lowest z peaks
+        curr = right_peak
+        visited = {}
+        while curr[0] > midLine:
+            if curr not in visited:
+                visited[curr] = True
+            else:
+                break
+
+            if curr[1] > sternum_point[1] and curr[0] < thirdQuarterLine:
+                sternum_point = curr
+
+            if self.new_point_dict[curr][0][0] > self.new_point_dict[curr][1][0]:
+                curr = self.new_point_dict[curr][1]
+            else:
+                curr = self.new_point_dict[curr][0]
 
         #find the point that intercepts the x of the sternum for the vertebre point
         vertebre_point = (0,0)
         for i in range(len(self.vertices)):
             if self.vertices[i-1][0] == sternum_point[0] and self.vertices[i-1][1] > sternum_point[1]:
-                vertebre_point = self.vertices[i-1][1]
+                vertebre_point = self.vertices[i-1]
                 break
             elif self.vertices[i-1][0] <= sternum_point[0] and self.vertices[i][0] >= sternum_point[0]:
                 if self.vertices[i-1][1] > sternum_point[1] and self.vertices[i][1] > sternum_point[1]:
@@ -263,8 +328,14 @@ class Slice(object):
                 if self.vertices[i-1][1] > sternum_point[1] and self.vertices[i][1] > sternum_point[1]:
                     vertebre_point = hallerIntersection(self.vertices[i-1], self.vertices[i], sternum_point)
                     break
-        #print str(right_lung_x) + " " + str(left_lung_x) + " " + str(vertebre_point[1]) + " " + str(sternum_point[1])
-        return (right_lung_x - left_lung_x) / (vertebre_point[1] - sternum_point[1])
+        
+        retList = []
+        retList.append((right_lung_x[0] - left_lung_x[0]) / (vertebre_point[1] - sternum_point[1]))
+        retList.append(vertebre_point)
+        retList.append(sternum_point)
+        retList.append(right_lung_x)
+        retList.append(left_lung_x)
+        return retList
 
 #calcualte the area given vertices using Shoelace formula
 def areaPolygon(vertices):
@@ -308,4 +379,3 @@ def hallerIntersection(p1, p2, p3):
     b = p1[1] - (k * p1[0])
     z = (k * p3[0]) + b
     return (x, z)
-

@@ -63,15 +63,18 @@ class main_window(QMainWindow):
         self.yBtn = QPushButton('Flip Y')
         self.sBtn = QPushButton('Save Slice')
         self.eBtn = QPushButton('Edit Slice')
+        self.hBtn = QPushButton('Haller Index')
 
         self.yBtn.clicked.connect(self.controller.flipY)
         self.sBtn.clicked.connect(self.controller.saveSlice)
         self.eBtn.clicked.connect(self.controller.editModeAction)
+        self.hBtn.clicked.connect(self.controller.hallerIndexDisplay)
 
         buttonBox.addStretch(1)
         buttonBox.addWidget(self.yBtn)
         buttonBox.addWidget(self.eBtn)
         buttonBox.addWidget(self.sBtn)
+        buttonBox.addWidget(self.hBtn)
 
         vbox = QVBoxLayout()
 
