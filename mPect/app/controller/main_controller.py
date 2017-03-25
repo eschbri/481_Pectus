@@ -219,8 +219,8 @@ class main_controller(QObject):
             for r in self.slice.getLines():
                 self.hallerAxes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
 
-            self.hallerAxes.plot([hallerPoints[1][0], hallerPoints[2][0]], [hallerPoints[1][1], hallerPoints[2][1]], 'b-')
-            self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'b-')
+            self.hallerAxes.plot([hallerPoints[1][0], hallerPoints[2][0]], [hallerPoints[1][1], hallerPoints[2][1]], 'r--')
+            self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'r--')
             #print "Haller Index: " + str(hallerPoints[0]) + "vertebre point: " + str(hallerPoints[1]) + "sternum point: " + str(hallerPoints[2])
             #print "right lung point: " + str(hallerPoints[3]) + "left lung point: " + str(hallerPoints[4])
 
