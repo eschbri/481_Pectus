@@ -220,8 +220,13 @@ class main_controller(QObject):
                 self.hallerAxes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
 
             self.hallerAxes.plot([hallerPoints[1][0], hallerPoints[2][0]], [hallerPoints[1][1], hallerPoints[2][1]], 'r--')
-            self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'r--')
+            #self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'r--')
+
+            #display straight horizontal line below slice 
+            self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[5][1] - .02, hallerPoints[5][1] - .02], 'r--')
             #print "Haller Index: " + str(hallerPoints[0]) + "vertebre point: " + str(hallerPoints[1]) + "sternum point: " + str(hallerPoints[2])
             #print "right lung point: " + str(hallerPoints[3]) + "left lung point: " + str(hallerPoints[4])
 
+            #print "haller index is: " + str(hallerPoints[0])
+            self.labelText.setText("haller index is: " + str(hallerPoints[0]))
             self.figures["sliceFigure"].draw()
