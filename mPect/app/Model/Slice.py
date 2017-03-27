@@ -202,6 +202,7 @@ class Slice(object):
         two_lowest_z_peaks = [(1,1),(1,1)]
         left_lung_x = (1,1)
         right_lung_x = (0,0)
+        lowest_point = (1,1)
 
         self.new_point_dict = {}
         for l in range(len(self.vertices)-1):
@@ -222,6 +223,8 @@ class Slice(object):
                 left_lung_x = self.vertices[i]
             if right_lung_x[0] < self.vertices[i][0]:
                 right_lung_x = self.vertices[i]
+            if lowest_point[1] > self.vertices[i][1]:
+                lowest_point = self.vertices[i]
 
         midLine = (left_lung_x[0] + right_lung_x[0]) / 2
         firstQuarterLine = midLine * .75
@@ -335,6 +338,7 @@ class Slice(object):
         retList.append(sternum_point)
         retList.append(right_lung_x)
         retList.append(left_lung_x)
+        retList.append(lowest_point)
         return retList
 
 #calcualte the area given vertices using Shoelace formula
