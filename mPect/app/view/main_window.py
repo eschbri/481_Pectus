@@ -64,17 +64,23 @@ class main_window(QMainWindow):
         self.sBtn = QPushButton('Save Slice')
         self.eBtn = QPushButton('Edit Slice')
         self.hBtn = QPushButton('Haller Index')
+        self.dBtn = QPushButton('Defect/Chest Ratio')
+        self.aBtn = QPushButton('Asymmetry Ratio')
 
         self.yBtn.clicked.connect(self.controller.flipY)
         self.sBtn.clicked.connect(self.controller.saveSlice)
         self.eBtn.clicked.connect(self.controller.editModeAction)
         self.hBtn.clicked.connect(self.controller.hallerIndexDisplay)
+        self.dBtn.clicked.connect(self.controller.defectMode)
+        self.aBtn.clicked.connect(self.controller.asymmetryMode)
 
         buttonBox.addStretch(1)
         buttonBox.addWidget(self.yBtn)
         buttonBox.addWidget(self.eBtn)
         buttonBox.addWidget(self.sBtn)
         buttonBox.addWidget(self.hBtn)
+        buttonBox.addWidget(self.dBtn)
+        buttonBox.addWidget(self.aBtn)
 
         vbox = QVBoxLayout()
 

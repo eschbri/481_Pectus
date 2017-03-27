@@ -25,6 +25,9 @@ class main_controller(QObject):
         # Slice Editing Data
         self.sdata = {}
 
+        # Area Select Data
+        self.adata = {}
+
 
     def load_model(self, filename):
         self.model = Model.Model()
@@ -88,6 +91,9 @@ class main_controller(QObject):
             self.sdata["p1"] = (0,0)
             self.sdata["p2"] = (0,0)
             self.sdata["p3"] = (0,0)
+            self.adata["c"] = 0
+            self.adata["p1"] = (0,0)
+            self.adata["p2"] = (0,0)
 
             self.figures["sliceFigure"].draw()
         else:
@@ -137,44 +143,81 @@ class main_controller(QObject):
         s = self
         def inAction(event):
             # Make sure we're in edit mode
-            if s.mode != "edit":
-                return
+            if s.mode == "edit":
+                if s.sdata["c"] == 0:
+                    s.sdata["p1"] = (event.xdata.item(), event.ydata.item())
 
-            if s.sdata["c"] == 0:
-                s.sdata["p1"] = (event.xdata.item(), event.ydata.item())
+                    s.view.statusBar().showMessage("P1 Selected")
+                elif s.sdata["c"] == 1:
+                    s.sdata["p2"] = (event.xdata.item(), event.ydata.item())
+                    #TODO: Draw a line
+                    axes.plot([s.sdata["p1"][0], s.sdata["p2"][0]],[s.sdata["p1"][1], s.sdata["p2"][1]], 'r--')
+                    s.figures["sliceFigure"].draw()
 
-                s.view.statusBar().showMessage("P1 Selected")
-            elif s.sdata["c"] == 1:
-                s.sdata["p2"] = (event.xdata.item(), event.ydata.item())
-                #TODO: Draw a line
-                axes.plot([s.sdata["p1"][0], s.sdata["p2"][0]],[s.sdata["p1"][1], s.sdata["p2"][1]], 'r--')
+                    s.view.statusBar().showMessage("P2 Selected")
+                elif s.sdata["c"] == 2:
+                    # Eraser Mode
+                    s.sdata["p3"] = (event.xdata.item(), event.ydata.item())
+
+                    # Edit the slice with this data
+                    s.editSlice(s.sdata["p1"], s.sdata["p2"], s.sdata["p3"], axes)
+
+                    s.view.statusBar().showMessage("P3 Selected")
+
+
+                s.sdata["c"] = s.sdata["c"] + 1
+                if s.sdata["c"] > 2:
+                    s.sdata["c"] = 0
+
+            elif s.mode == "defect":
+                if s.adata["c"] == 0:
+                    s.adata["p1"] = (event.xdata.item(), event.ydata.item())
+                    axes.plot(s.adata["p1"][0], s.adata["p1"][1], 'ro')
+                    s.figures["sliceFigure"].draw()
+                    s.view.statusBar().showMessage("P1 Selected")
+                elif s.adata["c"] == 1:
+                    s.adata["p2"] = (event.xdata.item(), event.ydata.item())
+                    axes.plot([s.adata["p1"][0], s.adata["p2"][0]],[s.adata["p1"][1], s.adata["p2"][1]], 'r--')
+                    axes.plot(s.adata["p2"][0], s.adata["p2"][1], 'ro')
+                    result = s.slice.defectRatio(s.adata["p1"][0], s.adata["p1"][1], s.adata["p2"][0], s.adata["p2"][1])
+                    s.view.statusBar().showMessage(str(result))
+                    s.figures["sliceFigure"].draw()
+                    
+                s.adata["c"] = s.adata["c"] + 1
+                if s.adata["c"] > 1:
+                    s.hallerAxes.cla()
+                    s.hallerAxes.axis([0,s.model.maxx, 0, s.model.maxx])
+                    s.hallerAxes.set_axis_off()
+                    for r in s.slice.getLines():
+                        s.hallerAxes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
+                    s.adata["c"] = 0
+
+            elif s.mode == "asymmetry":
+                x = event.xdata.item()
+                print x
+                midLine, = axes.plot([x, x], [0, s.model.maxy], 'r--')
+                result = s.slice.asymmetryRatio(x)
+                s.view.statusBar().showMessage(str(result))
                 s.figures["sliceFigure"].draw()
+                axes.lines.remove(midLine)
 
-                s.view.statusBar().showMessage("P2 Selected")
-            elif s.sdata["c"] == 2:
-                # Eraser Mode
-                s.sdata["p3"] = (event.xdata.item(), event.ydata.item())
-
-                # Edit the slice with this data
-                s.editSlice(s.sdata["p1"], s.sdata["p2"], s.sdata["p3"], axes)
-
-                s.view.statusBar().showMessage("P3 Selected")
-
-
-            s.sdata["c"] = s.sdata["c"] + 1
-            if s.sdata["c"] > 2:
-                s.sdata["c"] = 0
 
         return inAction
 
 
     # Edit Mode Button Handler
     def editModeAction(self):
-        if self.mode == "slice":
+        if self.mode != "edit":
+            if self.mode == "asymmetry":
+                self.view.aBtn.setStyleSheet('color:#000000')
+                self.reprint()
+            elif self.mode == "defect":
+                self.view.dBtn.setStyleSheet('color:#000000')
+                self.reprint()
             self.switchMode("edit")
             self.view.plotText.setText("<p>Edit Mode</p>")
             self.view.eBtn.setText("Slice Mode")
-        elif self.mode == "edit":
+        elif self.mode != "slice":
             self.switchMode("slice")
             self.view.plotText.setText("<p>Slicer Mode</p>")
             self.view.eBtn.setText("Edit Mode")
@@ -225,3 +268,48 @@ class main_controller(QObject):
             #print "right lung point: " + str(hallerPoints[3]) + "left lung point: " + str(hallerPoints[4])
 
             self.figures["sliceFigure"].draw()
+
+    # Button entering the defect area mode
+    def defectMode(self):
+        if self.mode != "defect":
+            if self.mode == "asymmetry":
+                self.view.aBtn.setStyleSheet('color:#000000')
+                self.reprint()
+            self.switchMode("defect")
+            self.view.plotText.setText("<p>Select Defect Area</p>")
+            self.view.dBtn.setStyleSheet('color:#ff0000')
+        else:
+            self.switchMode("edit")
+            self.view.plotText.setText("<p>Edit Mode</p>")
+            self.view.eBtn.setText("Slice Mode")
+            self.view.dBtn.setStyleSheet('color:#000000')
+            self.reprint()
+
+    def asymmetryMode(self):
+        if self.mode != "asymmetry":
+            if self.mode == "defect":
+                self.view.dBtn.setStyleSheet('color:#000000')
+                self.reprint()
+            self.switchMode("asymmetry")
+            self.view.plotText.setText("<p>Select Middle Line</p>")
+            self.view.aBtn.setStyleSheet('color:#ff0000') 
+
+        else:
+            self.switchMode("edit")
+            self.view.plotText.setText("<p>Edit Mode</p>")
+            self.view.eBtn.setText("Slice Mode")
+            self.view.aBtn.setStyleSheet('color:#000000')
+            self.reprint()
+
+    def reprint(self):
+        self.adata["c"] = 0
+        self.sdata["c"] = 0
+        self.hallerAxes.cla()
+
+        self.hallerAxes.axis([0,self.model.maxx, 0, self.model.maxx])
+        self.hallerAxes.set_axis_off()
+        for r in self.slice.getLines():
+            self.hallerAxes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
+        self.figures["sliceFigure"].draw()
+        
+
