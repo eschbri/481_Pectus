@@ -214,6 +214,9 @@ class main_controller(QObject):
             elif self.mode == "defect":
                 self.view.dBtn.setStyleSheet('color:#000000')
                 self.reprint()
+            elif self.mode == "haller":
+                self.view.hBtn.setStyleSheet('color:#000000')
+                self.reprint()
             self.switchMode("edit")
             self.view.plotText.setText("<p>Edit Mode</p>")
             self.view.eBtn.setText("Slice Mode")
@@ -248,37 +251,56 @@ class main_controller(QObject):
     #haller index show lines
     def hallerIndexDisplay(self):
         if self.hallerAxes != None:
-            # For undo purposes
-            self.oldSlice = self.slice
+            if self.mode != "haller":
+                if self.mode == "asymmetry":
+                    self.view.aBtn.setStyleSheet('color:#000000')
+                    self.reprint()
+                elif self.mode == "defect":
+                    self.view.dBtn.setStyleSheet('color:#000000')
+                    self.reprint()
+                self.switchMode("haller")
+                self.view.hBtn.setStyleSheet('color:#ff0000')
 
-            hallerPoints = self.slice.hallerIndex()
+                # For undo purposes
+                self.oldSlice = self.slice
 
-            # TODO: ReDraw the slice image with the new slice
-            self.hallerAxes.cla()
+                hallerPoints = self.slice.hallerIndex()
 
-            self.hallerAxes.axis([0,self.model.maxx, 0, self.model.maxx])
-            self.hallerAxes.set_axis_off()
+                # TODO: ReDraw the slice image with the new slice
+                self.hallerAxes.cla()
 
-            for r in self.slice.getLines():
-                self.hallerAxes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
+                self.hallerAxes.axis([0,self.model.maxx, 0, self.model.maxx])
+                self.hallerAxes.set_axis_off()
 
-            self.hallerAxes.plot([hallerPoints[1][0], hallerPoints[2][0]], [hallerPoints[1][1], hallerPoints[2][1]], 'r--')
-            #self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'r--')
+                for r in self.slice.getLines():
+                    self.hallerAxes.plot([r[0][0], r[1][0]], [r[0][1], r[1][1]], 'b-')
 
-            #display straight horizontal line below slice 
-            self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[5][1] - .02, hallerPoints[5][1] - .02], 'r--')
-            #print "Haller Index: " + str(hallerPoints[0]) + "vertebre point: " + str(hallerPoints[1]) + "sternum point: " + str(hallerPoints[2])
-            #print "right lung point: " + str(hallerPoints[3]) + "left lung point: " + str(hallerPoints[4])
+                self.hallerAxes.plot([hallerPoints[1][0], hallerPoints[2][0]], [hallerPoints[1][1], hallerPoints[2][1]], 'r--')
+                #self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'r--')
 
-            #print "haller index is: " + str(hallerPoints[0])
-            self.labelText.setText("haller index is: " + str(hallerPoints[0]))
-            self.figures["sliceFigure"].draw()
+                #display straight horizontal line below slice 
+                self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[5][1] - .02, hallerPoints[5][1] - .02], 'r--')
+                #print "Haller Index: " + str(hallerPoints[0]) + "vertebre point: " + str(hallerPoints[1]) + "sternum point: " + str(hallerPoints[2])
+                #print "right lung point: " + str(hallerPoints[3]) + "left lung point: " + str(hallerPoints[4])
+
+                #self.labelText.setText("haller index is: " + str(hallerPoints[0]))
+                self.view.statusBar().showMessage("haller index is: " + str(hallerPoints[0]))
+                self.figures["sliceFigure"].draw()
+            else:
+                self.switchMode("edit")
+                self.view.plotText.setText("<p>Edit Mode</p>")
+                self.view.eBtn.setText("Slice Mode")
+                self.view.hBtn.setStyleSheet('color:#000000')
+                self.reprint()
 
     # Button entering the defect area mode
     def defectMode(self):
         if self.mode != "defect":
             if self.mode == "asymmetry":
                 self.view.aBtn.setStyleSheet('color:#000000')
+                self.reprint()
+            elif self.mode == "haller":
+                self.view.hBtn.setStyleSheet('color:#000000')
                 self.reprint()
             self.switchMode("defect")
             self.view.plotText.setText("<p>Select Defect Area</p>")
@@ -294,6 +316,9 @@ class main_controller(QObject):
         if self.mode != "asymmetry":
             if self.mode == "defect":
                 self.view.dBtn.setStyleSheet('color:#000000')
+                self.reprint()
+            elif self.mode == "haller":
+                self.view.hBtn.setStyleSheet('color:#000000')
                 self.reprint()
             self.switchMode("asymmetry")
             self.view.plotText.setText("<p>Select Middle Line</p>")
