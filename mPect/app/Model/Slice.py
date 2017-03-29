@@ -117,7 +117,10 @@ class Slice(object):
     #calculate the left/right ratio
     def asymmetryRatio(self, x0):
         areaLeft = self.areaLeft(x0) 
-        return areaLeft / (self.areaChest() - areaLeft)
+        areaRight = self.areaChest() - areaLeft
+        if areaRight == 0:
+            return 0
+        return areaLeft / areaRight
 
     def areaChest(self):
         return areaPolygon(self.vertices)
