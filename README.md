@@ -10,9 +10,9 @@ Option 2 Run from Source
 
 1. First you will need to get pyqt5, scipy, numpy. We used python 2.7. We all just downloaded anaconda and used that, because we had problems getting the dependencies.
 
-2. Get the source code from github the qt project is contained within areapython.
+2. Get the source code from github the qt project is contained within mPect/
 
-3. run the script python qtArea.py
+3. run the script python exec.py
 
 Our application reads in an obj file for a patient's chest, and displays it to them. Once the obj file is displayed, the user can select a 2D slice of the chest. Calculations can then be performed on this slice.
 
