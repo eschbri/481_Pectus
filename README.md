@@ -30,7 +30,7 @@ How to use application
 
 4. Once you have a slice with a reasonable chest defect it is time to edit the slice. If there are no arms on the slice then you can skip this step :). Otherwise press the Edit Mode button, this will put you into editing mode. While in this mode press two points on the slice, one above where the arm connects to the chest and one below. This draws a line, then press the side of the slice which you would like to remove. Do this to both arms and then we can use the editing features.
 
-5. With our edited slice we can press the Haller Index button, this will draw the Haller index on the chest and display the calculated value to the user. This step was manual but we have made it automated :)
+5. With our edited slice we can press the Haller Index button, this will draw the Haller index on the chest and display the calculated value to the user. Make sure before you press the haller button the 2d slice has the arms properly cropped and that the slice has a standard concave at the Sternum otherwise the haller index will not be properly calculated. This step was manual but we have made it automated :)
 
 6. Next lets calculate an asymmetry ratio, this is the area ratio between the left side of the chest and the right side of the chest. Press the Asymmetry Ratio button, this puts you into asymmetry mode. Then select the slice, you will see a red ine which divides the two the two sides. 
 
