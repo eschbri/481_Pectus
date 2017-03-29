@@ -14,12 +14,20 @@ Option 2 Run from Source
 
 3. run the script python qtArea.py
 
+Our application reads in an obj file for a patient's chest, and displays it to them. Once the obj file is displayed, the user can select a 2D slice of the chest. Calculations can then be performed on this slice.
+
 How to use application
 
-1. The gui shows three buttons at the top row that allow you to set the boundaries for the left, right defect, and a center line for the calculate defect / chest ratio button and the calculate left / right asymmetry ratio button. The switch back to default image button allows you to switch back to the default image of the slice you are on. The display boundies button allows you to see the set boundary lines.
+1. Open up an obj file. Any obj of a patients chest will do but we recommend using PT18E.obj
 
-2. Next you have the set haller index buttons. The haller index is the ratio of distance lung width from left side to right side and the distance from vertebre to sternum. To set the horizontal points you want to include in your index, click on the set horizontal haller button and click on the two points of the image you want to set the horizontal component of the haller index to. Then you have to set the vertical component of the index, click on the set vertical haller button and choose the two points on the image that you want to include in the index.
+2. After opening the obj file you will see a plot of the patient's chest. This is a 2D image constructed directly from the obj file. Some of the scans need to be flipped 180 degrees, others do not. To flip the image press the Flip Y button located in the bottom right.
 
-3. Lastly you have the set vertical lung front to lung back and the set vertical from the sternum to vertebre buttons. You must click on both buttons and set two points for each button to output a lung back to front / sternum to vertebre ratio.
+3. To create a slice click anywhere on the patient's chest. We recommed clicking in the middle or upper-middle area of the chest to produce a slice with a prominent defect. Creating a slice takes a second or two, so be patient. Also if the first slice does not have a noticeable defect, just click on the of the chest image again to produce another slice. Some slices will have arms attached to them, and others will automatically be chopped off. See the next step for editing the slice.
 
-4. Also there is a blue slider widget component between the 2d slice image and the large chest image. You can move the slider widget up and down to see different slices of the 3d object. You can perform any of the mentioned computations to any of the slices included.
+4. Once you have a slice with a reasonable chest defect it is time to edit the slice. If there are no arms on the slice then you can skip this step :). Otherwise press the Edit Mode button, this will put you into editing mode. While in this mode press two points on the slice, one above where the arm connects to the chest and one below. This draws a line, then press the side of the slice which you would like to remove. Do this to both arms and then we can use the editing features.
+
+5. With our edited slice we can press the Haller Index button, this will draw the Haller index on the chest and display the calculated value to the user. This step was manual but we have made it automated :)
+
+6. Next lets calculate an asymmetry ratio, this is the area ratio between the left side of the chest and the right side of the chest. Press the Asymmetry Ratio button, this puts you into asymmetry mode. Then select the slice, you will see a red ine which divides the two the two sides. 
+
+7. Finally lets calculate a defect ratio. Press the Defect/Chest Ratio button, then press point on the chest where the defect peaks, you will see a red dot appear. Then press another point where the chest peaks, but on the other side of the defect. This will create a line which cuts across the top of the defect and calculates the ratio.
