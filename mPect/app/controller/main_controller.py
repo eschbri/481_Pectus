@@ -45,6 +45,8 @@ class main_controller(QObject):
         self.mode = "slice"
         self.view.plotText.setText("<p>Slice Mode</p>")
 
+        self.view.resetAllRatios()
+
     def addLabelText(self, text):
         self.labelText = text
 
@@ -116,6 +118,8 @@ class main_controller(QObject):
             self.figures["bodyFigure"].draw()
             s.viewSlice()
 
+            self.view.resetAllRatios()
+
         return inSlice
 
     # Modify the slice by clipping off a portion of it
@@ -184,6 +188,7 @@ class main_controller(QObject):
                         s.view.statusBar().showMessage("Select the area again")
                     else:
                         s.view.statusBar().showMessage(str(result))
+                        s.view.printDefect(result)
                     s.figures["sliceFigure"].draw()
                     
                 s.adata["c"] = s.adata["c"] + 1
@@ -200,6 +205,7 @@ class main_controller(QObject):
                 midLine, = axes.plot([x, x], [0, s.model.maxy], 'r--')
                 result = s.slice.asymmetryRatio(x)
                 s.view.statusBar().showMessage(str(result))
+                s.view.printAssym(result)
                 s.figures["sliceFigure"].draw()
                 axes.lines.remove(midLine)
 
@@ -287,6 +293,7 @@ class main_controller(QObject):
 
                 #self.labelText.setText("haller index is: " + str(hallerPoints[0]))
                 self.view.statusBar().showMessage("haller index is: " + str(hallerPoints[0]))
+                self.view.printHaller(hallerPoints[0])
                 self.figures["sliceFigure"].draw()
             else:
                 self.switchMode("edit")
