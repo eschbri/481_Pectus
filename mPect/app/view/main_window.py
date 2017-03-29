@@ -23,9 +23,8 @@ class main_window(QMainWindow):
         self.setupLayout()
 
         self.resize(1600, 800)
-        self.move(300,300)
+        self.move(50,50)
         self.setWindowTitle("MPect")
-
 
 
     def addMenuBar(self):
@@ -52,11 +51,41 @@ class main_window(QMainWindow):
         menu.addAction(exitAction)
         menu.addAction(openAction)
 
+    def printHaller(self, ind):
+        self.hallerText.setText("<b>Haller Index:</b> " + str(ind))
+
+    def printDefect(self, ind):
+        self.defectText.setText("<b>Defect Ratio:</b>: " + str(ind))
+
+    def printAssym(self, ind):
+        self.assymText.setText("<b>Assymetry Ratio:</b> " + str(ind))
+
+    def resetAllRatios(self):
+        self.printHaller("n/a")
+        self.printDefect("n/a")
+        self.printAssym("n/a")
+
     def setupLayout(self):
         plotBox = QHBoxLayout()
 
+        rightPlotBox = QVBoxLayout()
+
+        statsBox = QVBoxLayout()
+
+        self.hallerText = QLabel("<b>Haller Index:</b> ")
+        self.defectText = QLabel("<b>Defect Ratio:</b> ")
+        self.assymText = QLabel("<b>Assymetry Ratio:</b> ")
+        self.resetAllRatios()
+
+        statsBox.addWidget(self.hallerText)
+        statsBox.addWidget(self.defectText)
+        statsBox.addWidget(self.assymText)
+
+        rightPlotBox.addLayout(statsBox)
+        rightPlotBox.addWidget(self.setUpPlot("sliceFigure"))
+
         plotBox.addWidget(self.setUpPlot("bodyFigure"))
-        plotBox.addWidget(self.setUpPlot("sliceFigure"))
+        plotBox.addLayout(rightPlotBox)
 
         buttonBox = QHBoxLayout()
 
@@ -87,6 +116,7 @@ class main_window(QMainWindow):
         self.plotText = QLabel()
         self.plotText.setText("<b>Open a file with Ctrl+O</b>")
         self.controller.addLabelText(self.plotText)
+
 
         vbox.addWidget(self.plotText)
         vbox.addLayout(plotBox)
