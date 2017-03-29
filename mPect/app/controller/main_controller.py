@@ -180,7 +180,10 @@ class main_controller(QObject):
                     axes.plot([s.adata["p1"][0], s.adata["p2"][0]],[s.adata["p1"][1], s.adata["p2"][1]], 'r--')
                     axes.plot(s.adata["p2"][0], s.adata["p2"][1], 'ro')
                     result = s.slice.defectRatio(s.adata["p1"][0], s.adata["p1"][1], s.adata["p2"][0], s.adata["p2"][1])
-                    s.view.statusBar().showMessage(str(result))
+                    if result <= 0:
+                        s.view.statusBar().showMessage("Select the area again")
+                    else:
+                        s.view.statusBar().showMessage(str(result))
                     s.figures["sliceFigure"].draw()
                     
                 s.adata["c"] = s.adata["c"] + 1
@@ -194,7 +197,6 @@ class main_controller(QObject):
 
             elif s.mode == "asymmetry":
                 x = event.xdata.item()
-                print x
                 midLine, = axes.plot([x, x], [0, s.model.maxy], 'r--')
                 result = s.slice.asymmetryRatio(x)
                 s.view.statusBar().showMessage(str(result))

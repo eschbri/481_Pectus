@@ -147,10 +147,13 @@ class Slice(object):
                 point_list.append(v)
 
         if len(point_lists) == 0:
-            return 0
+            return -1
         elif self.vertices[0][1] >= k * self.vertices[0][0] + b and self.vertices[-1][1] >= k * self.vertices[-1][0] + b:
             point_lists[0] += point_lists[-1]
             point_lists = point_lists[:-1]
+
+        if len(point_lists) == 0:
+            return -1
 
         defect_vertices_index = 0
         min_num_vertices = len(point_lists[0])
