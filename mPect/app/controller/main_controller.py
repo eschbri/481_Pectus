@@ -111,14 +111,17 @@ class main_controller(QObject):
                 return
 
             # Throw the click coords into the list of lines called "constraints"
-            s.constraints.append((event.xdata.item(), event.ydata.item()))
+            try:
+                s.constraints.append((event.xdata.item(), event.ydata.item()))
 
-            # Plot the dotted line
-            axes.plot([self.model.minx, self.model.maxx], [event.ydata.item(), event.ydata.item()], 'r--')
-            self.figures["bodyFigure"].draw()
-            s.viewSlice()
+                # Plot the dotted line
+                axes.plot([self.model.minx, self.model.maxx], [event.ydata.item(), event.ydata.item()], 'r--')
+                self.figures["bodyFigure"].draw()
+                s.viewSlice()
 
-            self.view.resetAllRatios()
+                self.view.resetAllRatios()
+            except:
+                return
 
         return inSlice
 
@@ -147,13 +150,22 @@ class main_controller(QObject):
         s = self
         def inAction(event):
             # Make sure we're in edit mode
+            xc = 0
+            yc = 0
+
+            try:
+                xc = event.xdata.item()
+                yc = event.ydata.item()
+            except:
+                return
+
             if s.mode == "edit":
                 if s.sdata["c"] == 0:
-                    s.sdata["p1"] = (event.xdata.item(), event.ydata.item())
+                    s.sdata["p1"] = (xc, yc)
 
                     s.view.statusBar().showMessage("P1 Selected")
                 elif s.sdata["c"] == 1:
-                    s.sdata["p2"] = (event.xdata.item(), event.ydata.item())
+                    s.sdata["p2"] = (xc, yc)
                     #TODO: Draw a line
                     axes.plot([s.sdata["p1"][0], s.sdata["p2"][0]],[s.sdata["p1"][1], s.sdata["p2"][1]], 'r--')
                     s.figures["sliceFigure"].draw()
@@ -161,7 +173,7 @@ class main_controller(QObject):
                     s.view.statusBar().showMessage("P2 Selected")
                 elif s.sdata["c"] == 2:
                     # Eraser Mode
-                    s.sdata["p3"] = (event.xdata.item(), event.ydata.item())
+                    s.sdata["p3"] = (xc, yc)
 
                     # Edit the slice with this data
                     s.editSlice(s.sdata["p1"], s.sdata["p2"], s.sdata["p3"], axes)
