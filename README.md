@@ -2,9 +2,11 @@ link to github: https://github.com/eschbri/481_Pectus.git
 
 Option 1 run from exe file
 
-1. This is a link to our mBox https://drive.google.com/drive/folders/0BwM6SpLL5_1uX2dTclZXUWVLUEk?usp=sharing. Download all dist files and make sure the images are all in the same directory as the exe file.
+1. This is a link to our mBox https://drive.google.com/open?id=0ByFFHp27P4hAN3ZfU3pfek40dUU. Download all dist files and make sure the images are all in the same directory as the exe file.
 
-2. open dist file and click on qtArea.exe and the application should open up
+2. open dist file and click on exec.exe and the application should open up
+
+3. Open the .obj file included in the box folder
 
 Option 2 Run from Source
 
@@ -13,6 +15,8 @@ Option 2 Run from Source
 2. Get the source code from github the qt project is contained within mPect/
 
 3. run the script python exec.py
+
+4. An obj file is included in the google drive folder: https://drive.google.com/open?id=0ByFFHp27P4hAN3ZfU3pfek40dUU
 
 Our application reads in an obj file for a patient's chest, and displays it to them. Once the obj file is displayed, the user can select a 2D slice of the chest. Calculations can then be performed on this slice.
 
