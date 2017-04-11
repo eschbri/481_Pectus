@@ -178,6 +178,8 @@ class main_window(QMainWindow):
         fig = Figure(figsize=(300,300), dpi=72)
         f = FigureCanvas(fig)
 
+        fig.patch.set_facecolor('white')
+
         self.controller.addFigure(name, f)
 
         return f
