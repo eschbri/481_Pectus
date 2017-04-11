@@ -1,7 +1,11 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt4.QtGui import QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+import webbrowser
+
+from app.view.help_window import HelpWindow
+
 
 class main_window(QMainWindow):
 
@@ -31,10 +35,14 @@ class main_window(QMainWindow):
         mbar = self.menuBar()
 
         fileMenu = mbar.addMenu('&File')
+        editMenu = mbar.addMenu('&Edit')
+        helpMenu = mbar.addMenu('&Help')
 
-        self.setActions(fileMenu)
+        self.setFileActions(fileMenu)
+        self.setEditActions(editMenu)
+        self.setHelpActions(helpMenu)
 
-    def setActions(self, menu):
+    def setFileActions(self, menu):
 
         # actions
         exitAction = QAction('&Quit', self)
@@ -48,8 +56,50 @@ class main_window(QMainWindow):
         openAction.setStatusTip('Open file')
         openAction.triggered.connect(self.openDialog)
 
-        menu.addAction(exitAction)
         menu.addAction(openAction)
+        menu.addSeparator()
+        menu.addAction(exitAction)
+
+    def setEditActions(self, menu):
+        flipXAction = QAction('&Flip X-Axis', self)
+        flipXAction.setStatusTip('Flip the model along the X Axis')
+        flipXAction.triggered.connect(self.controller.flipX)
+
+        flipYAction = QAction('&Flip Y-Axis', self)
+        flipYAction.setStatusTip('Flip the model along the Y Axis')
+        flipYAction.triggered.connect(self.controller.flipY)
+
+        flipZAction = QAction('&Flip Z-Axis', self)
+        flipZAction.setStatusTip('Flip the model along the Z Axis')
+        flipZAction.triggered.connect(self.controller.flipZ)
+
+        menu.addAction(flipXAction)
+        menu.addAction(flipYAction)
+        menu.addAction(flipZAction)
+
+    def openReadme(self):
+       webbrowser.open_new("https://github.com/eschbri/481_Pectus/blob/master/README.md")
+
+    def setHelpActions(self, menu):
+        readmeAction = QAction('&Github Readme', self)
+        readmeAction.setStatusTip('View the Readme on GitHub')
+        readmeAction.triggered.connect(self.openReadme)
+
+        helpAction = QAction('&Help', self)
+        helpAction.setShortcut('f1')
+        helpAction.setStatusTip('Open the Help Window')
+        helpAction.triggered.connect(self.openHelpWindow)
+
+        menu.addAction(helpAction)
+        menu.addSeparator()
+        menu.addAction(readmeAction)
+
+    def openHelpWindow(self):
+        if self.controller.helpWindow is None:
+            self.controller.helpWindow = HelpWindow()
+            self.controller.helpWindow.show()
+        else:
+            self.controller.helpWindow.show()
 
     def printHaller(self, ind):
         self.hallerText.setText("<b>Haller Index:</b> " + str(ind))
@@ -135,9 +185,9 @@ class main_window(QMainWindow):
     def openDialog(self):
         filename = QFileDialog.getOpenFileName(self, 'Open File')
 
-        if filename[0]:
-            self.statusBar().showMessage("Opening " + filename[0])
-            self.controller.load_model(filename[0])
+        if filename:
+            self.statusBar().showMessage("Opening " + filename)
+            self.controller.load_model(filename)
 
     def reshow(self):
         self.show()

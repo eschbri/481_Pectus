@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt4.QtGui import QApplication, QWidget
 
 from Model import Model
 import view

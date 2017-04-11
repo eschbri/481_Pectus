@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt4.QtGui import QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog
+from PyQt4.QtCore import QObject
 from app.Model import Model
 from matplotlib import pyplot as plt
 import numpy as np
@@ -27,6 +27,9 @@ class main_controller(QObject):
 
         # Area Select Data
         self.adata = {}
+
+        # Other windows
+        self.helpWindow = None
 
 
     def load_model(self, filename):
@@ -262,6 +265,16 @@ class main_controller(QObject):
     def flipY(self):
         if self.model is not None:
             self.model.flip(False, True, False)
+            self.showPlot()
+
+    def flipX(self):
+        if self.model is not None:
+            self.model.flip(True, False, False)
+            self.showPlot()
+
+    def flipZ(self):
+        if self.model is not None:
+            self.model.flip(False, False, True)
             self.showPlot()
 
     # Modify the mode
