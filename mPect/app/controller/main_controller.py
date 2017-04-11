@@ -299,7 +299,10 @@ class main_controller(QObject):
                 #self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'r--')
 
                 #display straight horizontal line below slice 
-                self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[5][1] - .02, hallerPoints[5][1] - .02], 'r--')
+                if hallerPoints[0] > 1.5:
+                    self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[5][1] - .01, hallerPoints[5][1] - .01], 'r--')
+                else: 
+                    self.hallerAxes.plot([hallerPoints[3][0], hallerPoints[4][0]], [hallerPoints[3][1], hallerPoints[4][1]], 'r--')
                 #print "Haller Index: " + str(hallerPoints[0]) + "vertebre point: " + str(hallerPoints[1]) + "sternum point: " + str(hallerPoints[2])
                 #print "right lung point: " + str(hallerPoints[3]) + "left lung point: " + str(hallerPoints[4])
 

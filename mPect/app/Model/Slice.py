@@ -236,56 +236,17 @@ class Slice(object):
         firstQuarterLine = midLine * .75
         thirdQuarterLine = midLine * 1.25
 
-        #find left_peak to the left of midline
+        #find left_peak to the left of midline, and the right peak to the right of midline
         curr = left_lung_x
         left_peak = (1,1)
         right_peak = (1,1)
         visited = {}
 
-        while curr[0] < midLine:
-            if curr not in visited:
-                visited[curr] = True
-            else:
-                break
-
-            if curr[1] < left_peak[1]:
-                left_peak = curr
-
-            prev_curr = curr
-            if self.new_point_dict[curr][1][1] < curr[1]:
-                curr = self.new_point_dict[curr][1]             
-            elif self.new_point_dict[curr][0][1] < curr[1]:
-                curr = self.new_point_dict[curr][0]
-            elif self.new_point_dict[curr][1][0] > curr[0]:
-                curr = self.new_point_dict[curr][1]
-            elif self.new_point_dict[curr][0][0] > curr[0]:
-                curr = self.new_point_dict[curr][0]
-            else:
-                break
-
-
-        #find right_peak to the right of midline
-        curr = right_lung_x
-        visited = {}
-        while curr[0] > midLine:
-            if curr not in visited:
-                visited[curr] = True
-            else:
-                break
-
-            if curr[1] < right_peak[1]:
-                right_peak = curr
-
-            if self.new_point_dict[curr][1][1] < curr[1]:
-                curr = self.new_point_dict[curr][1]
-            elif self.new_point_dict[curr][0][1] < curr[1]:
-                curr = self.new_point_dict[curr][0]
-            elif self.new_point_dict[curr][1][0] < curr[0]:
-                curr = self.new_point_dict[curr][1]
-            elif self.new_point_dict[curr][0][0] < curr[0]:
-                curr = self.new_point_dict[curr][0]
-            else:
-                break
+        for l in range(len(self.vertices)):
+            if self.vertices[l][1] < left_peak[1] and self.vertices[l][0] < midLine:
+                left_peak = self.vertices[l]
+            elif self.vertices[l][1] < right_peak[1] and self.vertices[l][0] > midLine:
+                right_peak = self.vertices[l]
 
         #the sternum is marked at the highest point z axis between the two lowest z peaks
         curr = left_peak
@@ -337,7 +298,7 @@ class Slice(object):
                 if self.vertices[i-1][1] > sternum_point[1] and self.vertices[i][1] > sternum_point[1]:
                     vertebre_point = hallerIntersection(self.vertices[i-1], self.vertices[i], sternum_point)
                     break
-        
+
         retList = []
         retList.append((right_lung_x[0] - left_lung_x[0]) / (vertebre_point[1] - sternum_point[1]))
         retList.append(vertebre_point)
