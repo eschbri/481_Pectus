@@ -12,17 +12,17 @@ import cube
 class PectusGL(QGLWidget):
     def __init__(self, verts, norms, faces, parent = None):
         super(PectusGL, self).__init__(parent)
-        self.verts = verts
-        self.norms = norms
-        self.faces = faces
-
-        self.lastPos = QtCore.QPoint()
+        self.verts = self.__flatten(verts)
+        self.norms = self.__flatten(norms)
+        self.faces = self.__flatten(faces)
+        self.colors = self.__flatten(cube.colors)
 
     def paintGL(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
-        #glVertexPointer(3, GL_FLOAT, self.recordLen, self.vertexOffset)
-        #glNormalPointer(GL_FLOAT, self.recordLen, self.normalOffest)
+        glVertexPointer(3, GL_FLOAT, 0, self.verts)
+        glNormalPointer(GL_FLOAT, 0, self.norms)
+        glColorPointer(3, GL_FLOAT, 0, self.colors)
 
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
@@ -31,32 +31,10 @@ class PectusGL(QGLWidget):
 
         offset = 0
 	for size in cube.sizes:
-		glBegin(GL_TRIANGLE_STRIP)
-		for i in range(offset, offset+size):
-			index = cube.indicies[i]
-			glColor3f(*cube.colors[index])
-			glNormal3f(*cube.normals[index])
-			glVertex3f(*cube.verticies[index])
-		glEnd()
-		offset += size
+            glDrawElements(GL_TRIANGLE_STRIP, size, GL_UNSIGNED_INT, cube.indicies[offset:offset + size])
+	    offset += size
 
         glPopMatrix()
-
-    def mousePressEvent(self, event):
-        self.lastPos = event.pos()
-
-    def mouseMoveEvent(self, event):
-        dx = event.x() - self.lastPos.x()
-        dy = event.y() - self.lastPos.y()
-
-        if event.buttons() & QtCore.Qt.LeftButton:
-            self.setXRotation(self.xRot + 8 * dy)
-            self.setYRotation(self.yRot + 8 * dx)
-        elif event.buttons() & QtCore.Qt.RightButton:
-            self.setXRotation(self.xRot + 8 * dy)
-            self.setZRotation(self.zRot + 8 * dx)
-
-        self.lastPos = event.pos()
 
     def resizeGL(self, w, h):
         print("Resize")
@@ -68,12 +46,12 @@ class PectusGL(QGLWidget):
 
     def __init_object(self):
         print("Do nothing")
-        '''
         # enable arrays
         glEnableClientState(GL_VERTEX_ARRAY)
         glEnableClientState(GL_NORMAL_ARRAY)
         glEnableClientState(GL_COLOR_ARRAY)
 
+        '''
         # Get data and calculate offsets
         indicies = cube.indicies
         data = self.__flatten(*zip(self.verts, self.norms))
