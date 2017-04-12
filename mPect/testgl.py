@@ -16,6 +16,8 @@ class PectusGL(QGLWidget):
         self.norms = self.__flatten(norms)
         self.faces = self.__flatten(faces)
         self.colors = self.__flatten(cube.colors)
+        self.uniforms = ['fullTransformMatrix']
+        self.uniformLocations = {}
 
     def paintGL(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -42,9 +44,10 @@ class PectusGL(QGLWidget):
     def initializeGL(self):
         glClearColor(0.0, 0.0, 0.0, 1.0)
 
-        self.__init_object()
+        self.__initProgram()
+        self.__initObject()
 
-    def __init_object(self):
+    def __initObject(self):
         print("Do nothing")
         # enable arrays
         glEnableClientState(GL_VERTEX_ARRAY)
@@ -70,6 +73,31 @@ class PectusGL(QGLWidget):
         glBufferData(GL_ARRAY_BUFFER, dataBuffer, GL_STATIC_DRAW)
         '''
 
+    def __initProgram(self):
+        vertShader = self.__compileShader(GL_VERTEX_SHADER, 'VertexShaderCode.glsl')
+        fragShader = self.__compileShader(GL_FRAGMENT_SHADER, 'FragmentShaderCode.glsl')
+
+        program = glCreateProgram()
+        glAttachShader(program, vertShader)
+        glAttachShader(program, fragShader)
+
+	if glGetProgramiv(program, GL_LINK_STATUS) != GL_TRUE:
+		raise RuntimeError(glGetProgramInfoLog(program))
+	
+	for uniform in self.uniforms:
+		self.locations[uniform] = glGetUniformLocation(program, uniform)
+	
+	glUseProgram(program)
+
+    def __compileShader(self, shader_type, sourceFile):
+        with open(sourceFile, 'r') as f:
+            shader = glCreateShader(shader_type)
+            glShaderSource(shader, f.read())
+            glCompileShader(shader)
+            if glGetShaderiv(shader, GL_COMPILE_STATUS) != GL_TRUE:
+                raise RuntimeError(glGetShaderInfoLog(shader))
+            return shader
+        
     def __flatten(self, *lll):
         return [u for ll in lll for l in ll for u in l]
 
