@@ -24,9 +24,8 @@ out vec3 theColor;
  
 void main() 
 { 
-    vec4 v = vec4(position, 1.0);
-    gl_Position = v; 
-    theColor = color; 
+    gl_Position = vec4(position, 1); 
+    theColor = color;
 } 
 """  
   
@@ -38,7 +37,7 @@ out vec4 outputColor;
  
 void main() 
 { 
-    outputColor = vec4(theColor, 1.0); 
+    outputColor = vec4(theColor, 1); 
 } 
 """  
   
@@ -62,8 +61,15 @@ class PectusGL(QtOpenGL.QGLWidget):
         vertexShader = shaders.compileShader(VERTEX_SHADER, GL_VERTEX_SHADER)  
         fragmentShader = shaders.compileShader(FRAGMENT_SHADER, GL_FRAGMENT_SHADER)  
         self.shaderProgram = shaders.compileProgram(vertexShader, fragmentShader)  
-        # active shader program  
-        glUseProgram(self.shaderProgram)  
+  
+        # triangle position and color  
+        vertexData = numpy.array([0.0, 0.5, 0.0,  
+                                0.5, -0.366, 0.0,
+                                -0.5, -0.366, 0.0, 
+                                1.0, 0.0, 0.0, 
+                                0.0, 1.0, 0.0, 
+                                0.0, 0.0, 1.0, ],  
+                                dtype=numpy.float32)  
   
         # create VAO  
         self.VAO = glGenVertexArrays(1)  
@@ -83,13 +89,7 @@ class PectusGL(QtOpenGL.QGLWidget):
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)  
         # the last parameter is a pointer  
         # python donot have pointer, have to using ctypes  
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(self.colorOffset))
-
-        INDEX = glGenBuffers(1)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, INDEX)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-                self.faces, 
-                GL_STATIC_DRAW)
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(9 * ctypes.sizeof(ctypes.c_float))  )
   
         glBindBuffer(GL_ARRAY_BUFFER, 0)  
         glBindVertexArray(0)  
