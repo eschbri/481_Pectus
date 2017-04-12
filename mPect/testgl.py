@@ -37,27 +37,27 @@ from PyQt4 import QtGui, QtOpenGL
 VERTEX_SHADER = """ 
 #version 330 
  
-layout (location=0) in vec4 position; 
-layout (location=1) in vec4 color; 
+layout (location=0) in vec3 position; 
+layout (location=1) in vec3 color; 
  
-smooth out vec4 theColor; 
+out vec3 theColor; 
  
 void main() 
 { 
-    gl_Position = position; 
-    theColor = color; 
+    gl_Position = vec4(position, 1); 
+    theColor = color;
 } 
 """  
   
 FRAGMENT_SHADER = """ 
 #version 330 
  
-smooth in vec4 theColor; 
+in vec3 theColor; 
 out vec4 outputColor; 
  
 void main() 
 { 
-    outputColor = theColor; 
+    outputColor = vec4(theColor, 1); 
 } 
 """  
   
@@ -71,12 +71,12 @@ class MyWidget(QtOpenGL.QGLWidget):
         self.shaderProgram = shaders.compileProgram(vertexShader, fragmentShader)  
   
         # triangle position and color  
-        vertexData = numpy.array([0.0, 0.5, 0.0, 1.0,  
-                                0.5, -0.366, 0.0, 1.0,  
-                                -0.5, -0.366, 0.0, 1.0,  
-                                1.0, 0.0, 0.0, 1.0,  
-                                0.0, 1.0, 0.0, 1.0,  
-                                0.0, 0.0, 1.0, 1.0, ],  
+        vertexData = numpy.array([0.0, 0.5, 0.0,  
+                                0.5, -0.366, 0.0,
+                                -0.5, -0.366, 0.0, 
+                                1.0, 0.0, 0.0, 
+                                0.0, 1.0, 0.0, 
+                                0.0, 0.0, 1.0, ],  
                                 dtype=numpy.float32)  
   
         # create VAO  
@@ -91,10 +91,10 @@ class MyWidget(QtOpenGL.QGLWidget):
         # enable array and set up data  
         glEnableVertexAttribArray(0)  
         glEnableVertexAttribArray(1)  
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, None)  
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)  
         # the last parameter is a pointer  
         # python donot have pointer, have to using ctypes  
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(48))  
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, ctypes.c_void_p(9 * ctypes.sizeof(ctypes.c_float))  )
   
         glBindBuffer(GL_ARRAY_BUFFER, 0)  
         glBindVertexArray(0)  
