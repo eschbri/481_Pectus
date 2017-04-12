@@ -1,57 +1,65 @@
-# -*- coding: utf-8 -*-
-
-"""
-Cube model.
-
-Copyright (c) 2010, Renaud Blanch <rndblnch at gmail dot com>
-Licence: GPLv3 or higher <http://www.gnu.org/licenses/gpl.html>
-"""
-
-
-# imports ####################################################################
-
-from linalg import vector as _v
-
-
-# model ######################################################################
-
-bbox = [-1., 1.]
-points = [(x, y, z) for x in bbox for y in bbox for z in bbox]
-
-faces  = [
-	[0, 1, 2, 3],
-	[1, 5, 3, 7],
-	[5, 4, 7, 6],
-	[4, 0, 6, 2],
-	[2, 3, 6, 7],
-	[4, 5, 0, 1],
+verts = [
+    -1.0, +1.0, +1.0, # 0
+    +1.0, +1.0, +1.0, # 1
+    +1.0, +1.0, -1.0, # 2
+    -1.0, +1.0, -1.0, # 3
+    -1.0, +1.0, -1.0, # 4
+    +1.0, +1.0, -1.0, # 5
+    +1.0, -1.0, -1.0, # 6
+    -1.0, -1.0, -1.0, # 7
+    +1.0, +1.0, -1.0, # 8
+    +1.0, +1.0, +1.0, # 9
+    +1.0, -1.0, +1.0, # 10
+    +1.0, -1.0, -1.0, # 11
+    -1.0, +1.0, +1.0, # 12
+    -1.0, +1.0, -1.0, # 13
+    -1.0, -1.0, -1.0, # 14
+    -1.0, -1.0, +1.0, # 15
+    +1.0, +1.0, +1.0, # 16
+    -1.0, +1.0, +1.0, # 17
+    -1.0, -1.0, +1.0, # 18
+    +1.0, -1.0, +1.0, # 19
+    +1.0, -1.0, -1.0, # 20
+    -1.0, -1.0, -1.0, # 21
+    -1.0, -1.0, +1.0, # 22
+    +1.0, -1.0, +1.0, # 23
 ]
 
-def rgb(x, y, z):
-	return x/2+.5, y/2+.5, z/2+.5
 
-sizes = []
-verticies, normals, colors = [], [], []
+colors = [
+    +1.0, +0.0, +0.0, # Color
+    +0.0, +1.0, +0.0, # Color
+    +0.0, +0.0, +1.0, # Color
+    +1.0, +1.0, +1.0, # Color
+    +1.0, +0.0, +1.0, # Color
+    +0.0, +0.5, +0.2, # Color
+    +0.8, +0.6, +0.4, # Color
+    +0.3, +1.0, +0.5, # Color
+    +0.2, +0.5, +0.2, # Color
+    +0.9, +0.3, +0.7, # Color
+    +0.3, +0.7, +0.5, # Color
+    +0.5, +0.7, +0.5, # Color
+    +0.7, +0.8, +0.2, # Color
+    +0.5, +0.7, +0.3, # Color
+    +0.4, +0.7, +0.7, # Color
+    +0.2, +0.5, +1.0, # Color
+    +0.6, +1.0, +0.7, # Color
+    +0.6, +0.4, +0.8, # Color
+    +0.2, +0.8, +0.7, # Color
+    +0.2, +0.7, +1.0, # Color
+    +0.8, +0.3, +0.7, # Color
+    +0.8, +0.9, +0.5, # Color
+    +0.5, +0.8, +0.5, # Color
+    +0.9, +1.0, +0.2, # Color
+]
 
-for indexes in faces:
-	sizes.append(len(indexes))
-	p0, p1, p2 = [points[indexes[i]] for i in range(3)]
-	normal = _v.cross(_v.vector(p0, p1), _v.vector(p0, p2))
-	for index in indexes:
-		vertex = points[index]
-		verticies.append(vertex)
-		normals.append(normal)
-		colors.append(rgb(*vertex))
-
-tex_coords = verticies
-indicies = range(sum(sizes))
 
 
-__all__ = [
-	"sizes",
-	"indicies",
-	"verticies",
-	"tex_coords",
-	"normals",
-	"colors",
+faces = [
+    0,   1,  2,  0,  2,  3, # Top
+    4,   5,  6,  4,  6,  7, # Front
+    8,   9, 10,  8, 10, 11, # Right
+    12, 13, 14, 12, 14, 15, # Left
+    16, 17, 18, 16, 18, 19, # Back
+    20, 22, 21, 20, 23, 22, # Bottom
 ]
