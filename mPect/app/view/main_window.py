@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import webbrowser
 
 from app.view.help_window import HelpWindow
+from app.view.about_window import AboutWindow
 
 
 class main_window(QMainWindow):
@@ -90,7 +91,13 @@ class main_window(QMainWindow):
         helpAction.setStatusTip('Open the Help Window')
         helpAction.triggered.connect(self.openHelpWindow)
 
+        aboutAction = QAction('&About', self)
+        aboutAction.setStatusTip('Open the about window')
+        aboutAction.triggered.connect(self.openAboutWindow)
+
         menu.addAction(helpAction)
+        menu.addSeparator()
+        menu.addAction(aboutAction)
         menu.addSeparator()
         menu.addAction(readmeAction)
 
@@ -100,6 +107,13 @@ class main_window(QMainWindow):
             self.controller.helpWindow.show()
         else:
             self.controller.helpWindow.show()
+
+    def openAboutWindow(self):
+        if self.controller.aboutWindow is None:
+            self.controller.aboutWindow = AboutWindow()
+            self.controller.aboutWindow.show()
+        else:
+            self.controller.aboutWindow.show()
 
     def printHaller(self, ind):
         self.hallerText.setText("<b>Haller Index:</b> " + str(ind))
@@ -139,22 +153,28 @@ class main_window(QMainWindow):
 
         buttonBox = QHBoxLayout()
 
+        self.xBtn = QPushButton('Flip X')
         self.yBtn = QPushButton('Flip Y')
+        self.zBtn = QPushButton('Flip Z')
         self.sBtn = QPushButton('Save Slice')
         self.eBtn = QPushButton('Edit Slice')
         self.hBtn = QPushButton('Haller Index')
         self.dBtn = QPushButton('Defect/Chest Ratio')
         self.aBtn = QPushButton('Asymmetry Ratio')
 
+        self.xBtn.clicked.connect(self.controller.flipX)
         self.yBtn.clicked.connect(self.controller.flipY)
+        self.zBtn.clicked.connect(self.controller.flipZ)
         self.sBtn.clicked.connect(self.controller.saveSlice)
         self.eBtn.clicked.connect(self.controller.editModeAction)
         self.hBtn.clicked.connect(self.controller.hallerIndexDisplay)
         self.dBtn.clicked.connect(self.controller.defectMode)
         self.aBtn.clicked.connect(self.controller.asymmetryMode)
 
-        buttonBox.addStretch(1)
+        buttonBox.addWidget(self.xBtn)
         buttonBox.addWidget(self.yBtn)
+        buttonBox.addWidget(self.zBtn)
+        buttonBox.addStretch(1)
         buttonBox.addWidget(self.eBtn)
         buttonBox.addWidget(self.sBtn)
         buttonBox.addWidget(self.hBtn)

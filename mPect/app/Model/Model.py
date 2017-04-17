@@ -136,11 +136,11 @@ class Model(object):
         axes.set_axis_off()
 
         if plane == "xy":
-            axes.scatter(xs, ys, c=zs, s=100, cmap='gray')
+            axes.scatter(xs, ys, c=zs, s=100, cmap='gray', edgecolors='face')
         elif plane == "yz":
-            axes.scatter(ys, zs, c=xs, s=100, cmap='gray')
+            axes.scatter(ys, zs, c=xs, s=100, cmap='gray', edgecolors='face')
         elif plane == "xz":
-            axes.scatter(xs, zs, c=ys, s=100, cmap='gray')
+            axes.scatter(xs, zs, c=ys, s=100, cmap='gray', edgecolors='face')
 
 
         onclick = sliceAction(axes)

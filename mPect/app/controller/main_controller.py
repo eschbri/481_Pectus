@@ -30,6 +30,7 @@ class main_controller(QObject):
 
         # Other windows
         self.helpWindow = None
+        self.aboutWindow = None
 
 
     def load_model(self, filename):
