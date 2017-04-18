@@ -254,13 +254,13 @@ class main_controller(QObject):
 
     # Save the slice image to a buffer
     def saveSlice(self):
-        imgBuffer = StringIO.StringIO()
+        #imgBuffer = StringIO.StringIO()
         if len(self.constraints) > 0 and "sliceFigure" in self.figures:
-            #self.figures["sliceFigure"].figure.savefig('slice.png')
-            self.figures["sliceFigure"].figure.savefig(imgBuffer, format='png')
+            self.figures["sliceFigure"].figure.savefig('slice.png')
+            #self.figures["sliceFigure"].figure.savefig(imgBuffer, format='png')
 
         self.labelText.setText("Saved slice as `slice.png`")
-        return imgBuffer
+        #return imgBuffer
 
     # Flip the body on the Y axis
     def flipY(self):
