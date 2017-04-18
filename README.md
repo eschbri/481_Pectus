@@ -10,7 +10,7 @@ Option 1 run from exe file
 
 Option 2 Run from Source
 
-1. First you will need to get pyqt5, scipy, numpy. We used python 2.7. We all just downloaded anaconda and used that, because we had problems getting the dependencies.
+1. First you will need to get pyqt4, scipy, numpy. We used python 2.7. We all just downloaded anaconda and used that, because we had problems getting the dependencies. To get qt4 on anaconda just run `conda install pyqt=4.11`
 
 2. Get the source code from github the qt project is contained within mPect/
 
